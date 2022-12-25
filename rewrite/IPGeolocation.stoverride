@@ -1,0 +1,15 @@
+name: IP地址信息
+desc: 查询当前IP地址信息并显示在Tile
+
+tiles:
+  - name: ip-geolocation 
+    interval: 3600
+    title: 'IP地址信息'
+    content: '刷新中...'
+    icon: 'globe.asia.australia.fill'
+    backgroundColor: '#0C9DFA'
+
+script-providers:
+  ip-geolocation:
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/ip-geolocation.js
+    interval: 86400
