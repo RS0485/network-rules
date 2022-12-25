@@ -10,6 +10,7 @@
     - 示例: 
       - domain: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT, tag=category-ads-all, opt-parser=true, update-interval=259200
       - ipcidr: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/telegram-cidr.yaml?src=clash&dst=quan&type=rule&subtype=ipcidr&policy=PROXY!no-resolve, tag=telegram-cidr, opt-parser=true, update-interval=259200
+      - ipasn:  https://raw.githubusercontent.com/VirgilClyne/GetSomeFries/main/ruleset/ASN.China.list?src=any&dst=quan&type=rule&subtype=ipasn&policy=DIRECT, tag=asn-china, opt-parser=true, update-interval=259200, force-policy=DIRECT
 
 ### 参数说明
 | 参数  | 参数值             | 说明                      |
@@ -17,7 +18,7 @@
 | src     | clash/quan/surge      | 转换源APP                |
 | dst     | clash/quan/surge      | 转换目标APP             |
 | type    | server/rule/rewrite   | 订阅源的类型          |
-| subtype | domain/ipcidr/classic | `type=rule`时指定规则的类型 |
+| subtype | domain/ipcidr/ipasn/mixed | `type=rule`时指定规则的类型 |
 | policy  | [policy name]         | `type=rule`时指定分流策略 |
 
 ### 注意事项

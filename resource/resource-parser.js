@@ -12,12 +12,12 @@
  *     src:         clash/quan/surge            转换源APP    
  *     dst:         clash/quan/surge            转换目标APP
  *     type:        server/rule/rewrite         订阅源的类型
- *     subtype      domain/ipcidr/classic       type=rule时指定规则的类型
+ *     subtype      domain/ipcidr/ipasn/mixed   type=rule时指定规则的类型
  *     policy:      [policy name]               type=rule时指定分流策略
  * 
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
- *   2. subtype=ipcidr时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
+ *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
  */
 
 const Runtimes = {
@@ -49,11 +49,14 @@ class RuleConverter {
     }
 
     convert() {
-        if (this.#params.src === 'clash' && this.#params.dst === 'quan') {
+        if (this.#params.subtype === 'ipasn') {
+            return this.#ipasn2quan()
+        }
+        else if (this.#params.src === 'clash' && this.#params.dst === 'quan') {
             return this.#clash2quan()
         }
         else {
-            notify(`unsupported convertion from ${this.#params.src} to ${this.#params.dst}`)
+            notify(`unsupported convertion from ${this.#params.src} to ${this.#params.dst} with subtype=${this.#params.subtype}`)
 
             return {
                 result: false,
@@ -121,6 +124,46 @@ class RuleConverter {
         return {
             result: true,
             payload: dst_lines
+        }
+    }
+
+    #ipasn2quan() {
+        const lines = this.#content.split('\n')
+
+        var dst_lines = []
+
+        // Surrport the following cases:
+        // 标准list:                            IP-ASN,7497 // 计算机网络信息中心
+        // 逗号分隔符前后有一个或多个空格:      IP-ASN , 7586 // Cloudfort IT
+        // Stash的override风格:                 - IP-ASN,4134,DIRECT,no-resolve // 金融街31号
+        const regexp = /IP-ASN(\s+)?,(\s+)?(\d+)/
+        for (const ln of lines) {
+            var line = ln.trim()
+            if (line.startsWith('#') || line.startsWith('//')) {
+                continue
+            }
+
+            const match = line.match(regexp);
+            if (!match || match.length < 1) {
+                continue
+            }
+
+            dst_lines.push(`IP-ASN,${match[match.length - 1]},${this.#params.policy}`)
+        }
+
+        if (dst_lines.length < 1) {
+            notify(`no ipasn lines found within the content`)
+
+            return {
+                result: false,
+                payload: []
+            }
+        }
+        else {
+            return {
+                result: true,
+                payload: dst_lines
+            }
         }
     }
 }
@@ -221,6 +264,7 @@ class UnitTests {
         this.#test_rule_clash2quan_domain()
         this.#test_rule_clash2quan_ipcidr()
         this.#test_rule_clash2quan_ipcidr_no_resolve()
+        this.#test_rule_ipasn2quan()
     }
 
     #test_rewrite() {
@@ -327,6 +371,33 @@ payload:
         this.#assert(result.payload.length === 4)
         this.#assert(result.payload[0] === 'IP-CIDR,91.108.56.0/22,PROXY,no-resolve')
         this.#assert(result.payload[2] === 'IP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve')
+
+        return true
+    }
+
+    #test_rule_ipasn2quan() {
+        const content =
+            `IP-ASN,4134 // 中国电信骨干网
+IP-ASN ,   4538 // 中国教育科研网络中心
+- IP-ASN,4812,DIRECT,no-resolve // 中国电信（集团）`
+
+        var params = {
+            src: 'any',
+            dst: 'any',
+            type: 'rule',
+            subtype: 'ipasn',
+            policy: 'DIRECT'
+        }
+
+        const conv = new RuleConverter(params, content)
+        var result = conv.convert()
+        notify(JSON.stringify(result))
+
+        this.#assert(result.result === true)
+        this.#assert(result.payload.length === 3)
+        this.#assert(result.payload[0] === 'IP-ASN,4134,DIRECT')
+        this.#assert(result.payload[1] === 'IP-ASN,4538,DIRECT')
+        this.#assert(result.payload[2] === 'IP-ASN,4812,DIRECT')
 
         return true
     }
