@@ -1,8 +1,13 @@
 ## Quantumult X 资源解析器
 
 ### 使用方式
- - 格式: `订阅URL`?`参数列表`,`opt-parser=true...`
- - 示例: https://cdn.jsdelivr.net/gh/Kr328/V2rayDomains2Clash@generated/category-ads-all.yaml`?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT`, tag=category-ads-all, opt-parser=true, update-interval=259200
+1. 在配置文件引入资源解析器
+    - GITHUB: `resource_parser_url=https://raw.githubusercontent.com/RS0485/network-rules/main/resource/resource-parser.js`
+    - CDN: `resource_parser_url=https://cdn.jsdelivr.net/gh/RS0485/network-rules@main/resource/resource-parser.js`
+
+2. 在订阅连接后面添加解析器
+    - 格式: `订阅URL`?`参数列表`,`opt-parser=true...`
+    - 示例: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml`?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT`, tag=category-ads-all, opt-parser=true, update-interval=259200
 
 ### 参数说明
 | 参数  | 参数值             | 说明                      |

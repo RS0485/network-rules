@@ -1,0 +1,44 @@
+# 广告域名
+
+# 创建时间: 2022/12/7 下午7:00:05
+
+payload:
+  # 宁可错杀不可放过
+  - "+.adfox.ru"
+  - "+.wwads.cn"
+  - "+.umeng.com"
+  - "+.umengcloud.com"
+  - "+.51.la"
+  - "+.umm6.cn"
+  - "+.duomai.com"
+  - "+.ads.linkedin.com"
+  - "ads.pro-market.net"
+  # 秒针系统
+  - "+.miaozhen.com"
+  # 高德地图
+  - "optimus-ads.amap.com"
+  - "+.qchannel01.cn"
+  # 网易云
+  - "+.reachmax.cn"
+  - "+.miaozhen.com"
+  - "+.ads.8le8le.com"
+  - "+.popme.163.com"
+  - "+.nex.163.com"
+  - "+.nex.corp.163.com"
+  - "+.iadmusicmat.music.126.net"
+  - "+.iadmusicmatvideo.music.126.net"
+  # Sui.com
+  - "+.ssjlicai.com"
+  - "+.cardniu.com"
+  - "downloads.feidee.com"
+  - "yunmk.feidee.net"
+  - "community.feidee.com"
+  # 腾讯视频
+  - "+.l.qq.com"
+  - "+.gdt.qq.com"
+  # yhdmp
+  - "+.nmkstcrt.xyz"
+  - "+.lhippac.cn"
+  - "+.studylabs.cn"
+  - "+.guozhongwang.cn"
+  

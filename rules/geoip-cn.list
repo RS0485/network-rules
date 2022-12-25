@@ -1,0 +1,5 @@
+# NAME: geoip-cn
+# DESC: Quantumult X filter rule
+# UPDATED: 2022-12-24 04:31:36
+
+GEOIP,CN,DIRECT

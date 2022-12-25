@@ -1,0 +1,14 @@
+# 需要代理的域名
+
+# 创建时间: 2022/12/7 下午7:00:05
+
+payload:
+  - "+.sourceforge.net"
+  - "+.v2ex.com"
+  - "+.timopartl.com"
+  - "+.rarbg.to"
+  - "+.apkmirror.com"
+  - "+.apkpure.com"
+  - "+.cnbeta.com"
+  - "+.cnbeta.com.tw"
+  - "+.ipinfo.io"

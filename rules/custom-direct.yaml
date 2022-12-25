@@ -1,0 +1,23 @@
+# 需要直连的域名
+
+# 创建时间: 2022/12/7 下午7:00:05
+
+payload:
+  # Yandex smtp
+  - "smtp.yandex.com"
+  - "smtp.yandex.ru"
+  # tailscale relay servers
+  - "+.tailscale.com"
+  - "+.tailscale.io"
+  # NTP
+  - "+.ntp.org"
+  - "+.ntp.org.cn"
+  # IP-API
+  - "+.ipv6-test.com"
+  - "+.test-ipv6.com"
+  - "+.ipw.cn"
+  - "+.api.live.bilibili.com"
+  - "+.ip-api.com"
+  - "+.ip.sb"
+  # Misc
+  - "+.qiyoujiage.com"

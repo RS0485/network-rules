@@ -1,0 +1,48 @@
+# REF:
+# https://raw.githubusercontent.com/jnlaoshu/MySelf/master/QuantumultX/Script.conf
+# https://raw.githubusercontent.com/Infatuation-Fei/rule/main/Stash/Override/Rewrite/Adblock/Advertising.stoverride
+
+name: 重写去广告
+desc: 私人定制整合的重写去广告规则
+
+http:
+  mitm:
+    - 'data.feidee.net'
+    - 'tg.feidee.com'
+
+    - 'interfac*.music.163.com'
+
+    - 'mp.weixin.qq.com'
+    - 'szextshort.weixin.qq.com'
+    - 'tiasdk.app.wechat.com'
+
+    - 'gw.alicdn.com'
+    - 'heic.alicdn.com'
+
+    - 'm*.amap.com'
+    - 'amap-aos-info-nogw.amap.com'
+    - 'render-oss-cdn.amap.com'
+
+  rewrite:
+    # 随手记广告
+    - '^https?:\/\/tg\.feidee\.com\/online_ad - reject-dict'
+    - '^https?:\/\/data\.feidee\.net\/logCollect - reject-200'
+
+    # 网易云音乐
+    - '^https?:\/\/interface(\d)?\.music\.163\.com/eapi/(ad|abtest|sp|hot|store|search/(specialkeyword|defaultkeyword|hot)) - reject'
+
+    # 微信
+    - '^https?:\/\/mp\.weixin\.qq\.com\/(s|mp)\/(ad_|advertisement|getappmsgad|report|appmsgreport|appmsgpicreport) - reject'
+    - '^https?:\/\/szextshort\.weixin\.qq\.com\/cgi-bin\/mmoc-bin\/ad\/ - reject-img'
+    - '^https?:\/\/tiasdk\.app\.wechat\.com\/retrieval\/getAdInfo - reject'
+
+    # 淘宝
+    - '^https?:\/\/(gw|heic)\.alicdn\.com\/\w{2}s\/.+\.jpg_(9\d{2}|\d{4}) - reject'
+    - '^https?:\/\/(gw|heic)\.alicdn\.com\/imgextra\/.+\d{4}-\d{4}\.jpg_(9\d{2}|\d{4}) - reject'
+    - '^https?:\/\/(gw|heic)\.alicdn\.com\/imgextra\/\w{2}\/[\w!]+-\d-tps-\d{3,4}-\d{4}\.jpg_(1\d{3}|9\d{2})x(1\d{3}|9\d{2})q90\.jpg_\.(heic|webp)$ - reject'
+
+    # 高德地图
+    - '^https?:\/\/m\d\.amap\.com\/ws\/valueadded\/alimama\/splash_screen - reject'
+    - '^https?:\/\/render-oss-cdn\.amap\.com\/render\/studio-dev\/image\/ - reject'
+    - '^https?:\/\/amap\-aos\-info\-nogw\.amap\.com\/ws\/aos\/alimama\/ - reject'
+
