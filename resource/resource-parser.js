@@ -332,7 +332,7 @@ payload:
     }
 
     #test_resource_parser_ipcidr_no_resolve() {
-        const parser = new ResourceParser('https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/telegram-cidr.yaml?src=clash&dst=quan&type=rule&subtype=ipcidr&policy=DIRECT!no-resolve',
+        const parser = new ResourceParser('https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/telegram-cidr.yaml?src=clash&dst=quan&type=rule&subtype=ipcidr&policy=PROXY!no-resolve',
             `payload:
 - "91.108.56.0/22"
 - "2001:b28:f23c::/48"`)
@@ -343,7 +343,7 @@ payload:
         result = parser.convert_content()
         notify(JSON.stringify(result))
         this.#assert(result.result === true)
-        this.#assert(result.content === "IP-CIDR,91.108.56.0/22,DIRECT,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,DIRECT,no-resolve", `content: ${result.content}`)
+        this.#assert(result.content === "IP-CIDR,91.108.56.0/22,PROXY,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve", `content: ${result.content}`)
     }
 }
 
