@@ -17,7 +17,7 @@
  * 
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
- *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!或,分隔)，例如 "policy=DIRECT!no-resolve" 或 "policy=DIRECT,no-resolve"
+ *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
  */
 
 const Runtimes = {
@@ -186,7 +186,9 @@ class ContentGenerator {
     }
 
     generate() {
-        const lines = this.#params.content.split(';')
+        // Input
+        // GEOIP@LAN@DIRECT,no-resolve|GEOIP@CN@DIRECT
+        const lines = this.#params.content.replaceAll('@', ',').split('|')
 
         var dst_lines = []
 
@@ -232,7 +234,7 @@ class ResourceParser {
     }
 
     parse_params() {
-        const sections = this.#url.replace('!', ',').split('?')
+        const sections = this.#url.replaceAll('!', ',').split('?')
         if (sections.length != 2) {
             return false
         }
@@ -324,7 +326,7 @@ class UnitTests {
             src: 'any',
             dst: 'quan',
             type: 'generate',
-            content: 'GEOIP,LAN,DIRECT,no-resolve;GEOIP,CN,DIRECT'
+            content: 'GEOIP@LAN@DIRECT,no-resolve|GEOIP@CN@DIRECT'
         }
 
         const gen = new ContentGenerator(params)
@@ -339,8 +341,8 @@ class UnitTests {
 
     #test_parser() {
         this.#test_resource_parser_ipcidr_no_resolve()
-        this.#test_resource_parser_ipcidr_no_resolve2()
         this.#test_resource_parser_content_generator()
+        this.#test_resource_parser_content_generator2()
     }
 
     #test_rule_clash2quan_domain() {
@@ -485,23 +487,21 @@ IP-ASN ,   4538 // 中国教育科研网络中心
         this.#assert(result.content === "IP-CIDR,91.108.56.0/22,PROXY,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve", `content: ${result.content}`)
     }
 
-    #test_resource_parser_ipcidr_no_resolve2() {
-        const parser = new ResourceParser('https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/telegram-cidr.yaml?src=clash&dst=quan&type=rule&subtype=ipcidr&policy=PROXY,no-resolve',
-            `payload:
-- "91.108.56.0/22"
-- "2001:b28:f23c::/48"`)
+    #test_resource_parser_content_generator() {
+        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve', '')
 
         var result = parser.parse_params()
         this.#assert(result === true)
 
         result = parser.convert_content()
         notify(JSON.stringify(result))
+
         this.#assert(result.result === true)
-        this.#assert(result.content === "IP-CIDR,91.108.56.0/22,PROXY,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve", `content: ${result.content}`)
+        this.#assert(result.content === 'GEOIP,LAN,DIRECT,no-resolve', `content: ${result.content}`)
     }
 
-    #test_resource_parser_content_generator() {
-        const parser = new ResourceParser('https://www.github.com?src=any&dst=quan&type=generate&content=GEOIP,LAN,DIRECT,no-resolve;GEOIP,CN,DIRECT', '')
+    #test_resource_parser_content_generator2() {
+        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve|IP-CIDR,163.177.151.109/32,DIRECT|IP-ASN@13335@DIRECT', '')
 
         var result = parser.parse_params()
         this.#assert(result === true)
@@ -510,7 +510,7 @@ IP-ASN ,   4538 // 中国教育科研网络中心
         notify(JSON.stringify(result))
 
         this.#assert(result.result === true)
-        this.#assert(result.content === 'GEOIP,LAN,DIRECT,no-resolve\nGEOIP,CN,DIRECT', `content: ${result.content}`)
+        this.#assert(result.content === 'GEOIP,LAN,DIRECT,no-resolve\nIP-CIDR,163.177.151.109/32,DIRECT\nIP-ASN,13335,DIRECT', `content: ${result.content}`)
     }
 }
 

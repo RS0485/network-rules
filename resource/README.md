@@ -24,7 +24,7 @@
 | 参数  | 参数值             | 说明                      |
 | ------- | --------------------- | --------------------------- |
 | subtype | domain/ipcidr/ipasn/mixed | 指定规则的类型 |
-| policy  | [policy name]         | 指定分流策略，当`subtype`为IP类型时，可以在policy后面加上`no-resolve`(**用!或,分隔**)表示不需要DNS解析，例如 `policy=DIRECT!no-resolve`或`policy=DIRECT,no-resolve` |
+| policy  | [policy name]         | 指定分流策略，当`subtype`为IP类型时，可以在policy后面加上`no-resolve`(**用!分隔**)表示不需要DNS解析，例如 `policy=DIRECT!no-resolve` |
 
 **示例:** 
 - domain: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT, tag=category-ads-all, opt-parser=true, update-interval=259200
@@ -41,7 +41,7 @@
 
 | 参数  | 参数值             | 说明                      |
 | ------- | --------------------- | --------------------------- |
-| content  | 内容        | 用户指定内容，使用 `;`换行 |
+| content  | 内容        | 用户指定内容，使用`@`替代`,`, 使用 `|`换行 |
 
 **应用场景:**
 大多数配置文件会在最后面添加两条GEOIP规则:
@@ -50,7 +50,7 @@ GEOIP,LAN,DIRECT,no-resolve
 GEOIP,CN,DIRECT
 ```
 为了使其优先级最低，不能加在`filter_local`配置部分，而是必须加在`filter_remote`的最后面，这样就需要为这两条规则部署一个专门的配置文件。
-使用`generate`方式可以直接在本地生成上述两条规则: https://www.github.com/RS0485?src=any&dst=quan&type=generate&content=GEOIP,LAN,DIRECT,no-resolve;GEOIP,CN,DIRECT, tag=direct rules, opt-parser=true, update-interval=259200
+使用`generate`方式可以直接在本地生成上述两条规则: https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve|GEOIP@CN@DIRECT, tag=direct rules, opt-parser=true, update-interval=259200
 
 ### 注意事项
 1. 本脚本没用自动识别功能，使用时必须正确地指定每一个参数
