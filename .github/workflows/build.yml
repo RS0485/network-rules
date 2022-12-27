@@ -1,12 +1,12 @@
 name: Run unit tests on java scripts
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
-      - "./resource/resource-parser.js"
-  workflow_dispatch:
+      - "resource/resource-parser.js"
 
 jobs:
   deploy:
