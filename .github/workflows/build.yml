@@ -1,0 +1,25 @@
+name: Run unit tests on java scripts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "./resource/resource-parser.js"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy application
+        run: npm run deploy
+
+      - name: Run user script
+        run: node ./resource/resource-parser.js
