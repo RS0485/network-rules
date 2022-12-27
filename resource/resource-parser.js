@@ -2,7 +2,7 @@
  * @fileoverview JS Script to convert the resource to the format of Quantumult X.
  *
  * @author https://github.com/RS0485
- * @version 1.0.2
+ * @version 1.0.3
  *
  * 资源解析器的使用方式: 
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
@@ -17,7 +17,7 @@
  * 
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
- *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
+ *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!或,分隔)，例如 "policy=DIRECT!no-resolve" 或 "policy=DIRECT,no-resolve"
  */
 
 const Runtimes = {
@@ -178,6 +178,42 @@ class RewriteConverter {
     }
 }
 
+class ContentGenerator {
+    #params
+
+    constructor(params) {
+        this.#params = params
+    }
+
+    generate() {
+        const lines = this.#params.content.split(';')
+
+        var dst_lines = []
+
+        for (const ln of lines) {
+            const line = ln.trim()
+            if (line != '') {
+                dst_lines.push(line)
+            }
+        }
+
+        if (dst_lines.length < 1) {
+            notify(`no valid lines found within the content parameter`)
+
+            return {
+                result: false,
+                payload: []
+            }
+        }
+        else {
+            return {
+                result: true,
+                payload: dst_lines
+            }
+        }
+    }
+}
+
 class ResourceParser {
     #url
     #params = {
@@ -185,7 +221,8 @@ class ResourceParser {
         dst: '',
         type: '',
         subtype: '',
-        policy: ''
+        policy: '',
+        content: ''
     }
     #content
 
@@ -213,6 +250,7 @@ class ResourceParser {
                 case 'type': this.#params.type = param_sections[1]; break
                 case 'subtype': this.#params.subtype = param_sections[1]; break
                 case 'policy': this.#params.policy = param_sections[1]; break
+                case 'content': this.#params.content = param_sections[1]; break
                 default: continue
             }
         }
@@ -225,6 +263,15 @@ class ResourceParser {
         if (this.#params.type === 'rule') {
             const conv = new RuleConverter(this.#params, this.#content)
             var result = conv.convert()
+
+            return {
+                result: result.result,
+                content: result.payload.join('\n')
+            }
+        }
+        else if (this.#params.type === 'generate') {
+            const gen = new ContentGenerator(this.#params)
+            var result = gen.generate()
 
             return {
                 result: result.result,
@@ -257,6 +304,7 @@ class UnitTests {
     test_all() {
         this.#test_rule()
         this.#test_rewrite()
+        this.#test_generator()
         this.#test_parser()
     }
 
@@ -271,8 +319,28 @@ class UnitTests {
 
     }
 
+    #test_generator() {
+        var params = {
+            src: 'any',
+            dst: 'quan',
+            type: 'generate',
+            content: 'GEOIP,LAN,DIRECT,no-resolve;GEOIP,CN,DIRECT'
+        }
+
+        const gen = new ContentGenerator(params)
+        var result = gen.generate()
+        notify(JSON.stringify(result))
+
+        this.#assert(result.result === true)
+        this.#assert(result.payload.length === 2)
+        this.#assert(result.payload[0] === 'GEOIP,LAN,DIRECT,no-resolve')
+        this.#assert(result.payload[1] === 'GEOIP,CN,DIRECT')
+    }
+
     #test_parser() {
         this.#test_resource_parser_ipcidr_no_resolve()
+        this.#test_resource_parser_ipcidr_no_resolve2()
+        this.#test_resource_parser_content_generator()
     }
 
     #test_rule_clash2quan_domain() {
@@ -415,6 +483,34 @@ IP-ASN ,   4538 // 中国教育科研网络中心
         notify(JSON.stringify(result))
         this.#assert(result.result === true)
         this.#assert(result.content === "IP-CIDR,91.108.56.0/22,PROXY,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve", `content: ${result.content}`)
+    }
+
+    #test_resource_parser_ipcidr_no_resolve2() {
+        const parser = new ResourceParser('https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/telegram-cidr.yaml?src=clash&dst=quan&type=rule&subtype=ipcidr&policy=PROXY,no-resolve',
+            `payload:
+- "91.108.56.0/22"
+- "2001:b28:f23c::/48"`)
+
+        var result = parser.parse_params()
+        this.#assert(result === true)
+
+        result = parser.convert_content()
+        notify(JSON.stringify(result))
+        this.#assert(result.result === true)
+        this.#assert(result.content === "IP-CIDR,91.108.56.0/22,PROXY,no-resolve\nIP6-CIDR,2001:b28:f23c::/48,PROXY,no-resolve", `content: ${result.content}`)
+    }
+
+    #test_resource_parser_content_generator() {
+        const parser = new ResourceParser('https://www.github.com?src=any&dst=quan&type=generate&content=GEOIP,LAN,DIRECT,no-resolve;GEOIP,CN,DIRECT', '')
+
+        var result = parser.parse_params()
+        this.#assert(result === true)
+
+        result = parser.convert_content()
+        notify(JSON.stringify(result))
+
+        this.#assert(result.result === true)
+        this.#assert(result.content === 'GEOIP,LAN,DIRECT,no-resolve\nGEOIP,CN,DIRECT', `content: ${result.content}`)
     }
 }
 
