@@ -2,19 +2,19 @@
  * @fileoverview JS Script to convert the resource to the format of Quantumult X.
  *
  * @author https://github.com/RS0485
- * @version 1.0.3
+ * @version 1.0.4
  *
- * 资源解析器的使用方式: 
+ * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
  *     示例: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT, tag=category-ads-all, opt-parser=true, update-interval=259200
  *
  * 参数说明:
- *     src:         clash/quan/surge            转换源APP    
- *     dst:         clash/quan/surge            转换目标APP
- *     type:        server/rule/rewrite         订阅源的类型
- *     subtype      domain/ipcidr/ipasn/mixed   type=rule时指定规则的类型
- *     policy:      [policy name]               type=rule时指定分流策略
- * 
+ *     src:         clash/quan                    源格式, any表示任意
+ *     dst:         clash/quan                    目标格式, any表示任意
+ *     type:        server/rule/rewrite/generate  订阅源的类型
+ *     subtype      domain/ipcidr/ipasn/mixed     type=rule时指定规则的类型
+ *     policy:      [policy name]                 type=rule时指定分流策略
+ *
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
  *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
@@ -32,7 +32,7 @@ if (typeof $notify != 'undefined') {
 
 function notify(msg) {
     if (runtime === Runtimes.QuantumultX) {
-        $notify(`${msg}\nresource link:${$resource.link}`)
+        $notify('Resource parsing failed', `${$resource.link}`, `${msg}`)
     }
     else {
         console.log(msg)
