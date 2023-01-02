@@ -3,22 +3,24 @@
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules/tree/main/resource
- * @version 1.0.6
+ * @version 1.0.7
  *
  * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
  *     示例: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT, tag=category-ads-all, opt-parser=true, update-interval=259200
  *
  * 参数说明:
- *     src:         clash/quan                    源格式, any表示任意
- *     dst:         clash/quan                    目标格式, any表示任意
- *     type:        server/rule/rewrite/generate  订阅源的类型
- *     subtype      domain/ipcidr/ipasn/mixed     type=rule时指定规则的类型
- *     policy:      [policy name]                 type=rule时指定分流策略
+ *     src:         clash/quan                          源格式, any表示任意
+ *     dst:         clash/quan                          目标格式, any表示任意
+ *     type:        server/rule/rewrite/generate        订阅源的类型
+ *     subtype      domain/ipcidr/ipasn/ipasn-raw/mixed type=rule时指定规则的类型
+ *     policy:      [policy name]                       type=rule时指定分流策略
+ *     content:     [base64 encoded string]             type=rule/rewrite时的内容
  *
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
  *   2. subtype=为IP相关的规则时，可以在policy后面加上no-resolve(用!分隔)，例如 "policy=DIRECT!no-resolve"
+ *   3. 支持直接从 https://bgp.he.net/country/(CN/US/HK等) 解析网页生成ASN规则
  */
 
 const Runtimes = {
@@ -33,7 +35,7 @@ if (typeof $notify != 'undefined') {
 
 function notify(msg) {
     if (runtime === Runtimes.QuantumultX) {
-        $notify('Resource parsing failed', `${$resource.link}`, `${msg}`)
+        $notify('RS0485 Resource Parser', `${$resource.link}`, `${msg}`)
     }
     else {
         console.log(msg)
@@ -52,6 +54,9 @@ class RuleConverter {
     convert() {
         if (this.#params.subtype === 'ipasn') {
             return this.#ipasn2quan()
+        }
+        else if (this.#params.subtype === 'ipasn-raw' || this.#params.subtype === 'ipasn_raw') {
+            return this.#ipasn_raw2quan()
         }
         else if (this.#params.src === 'clash' && this.#params.dst === 'quan') {
             return this.#clash2quan()
@@ -133,7 +138,7 @@ class RuleConverter {
 
         var dst_lines = []
 
-        // Surrport the following cases:
+        // Support the following cases:
         // 标准list:                            IP-ASN,7497 // 计算机网络信息中心
         // 逗号分隔符前后有一个或多个空格:      IP-ASN , 7586 // Cloudfort IT
         // Stash的override风格:                 - IP-ASN,4134,DIRECT,no-resolve // 金融街31号
@@ -161,6 +166,42 @@ class RuleConverter {
             }
         }
         else {
+            return {
+                result: true,
+                payload: dst_lines
+            }
+        }
+    }
+
+    #ipasn_raw2quan() {
+        // 匹配ASN列，捕获ASN Number，过滤title没有描述的行
+        // 匹配: <td><a href="/AS4808" title="AS4808 - China Unicom Beijing Province Network">AS4808</a></td>
+        // 排除: <td><a href="/AS145110" title="AS145110 - ">AS145110</a></td>
+        const regex = /<td><a href="\/AS\d+" title="AS\d+ - .+">AS(\d+)<\/a><\/td>/gm;
+
+        var dst_lines = []
+
+        var m = null;
+        while ((m = regex.exec(this.#content)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (m.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+
+            dst_lines.push(`IP-ASN,${m[1]},${this.#params.policy}`)
+        }
+
+        if (dst_lines.length < 1) {
+            notify(`no ipasn lines found within the content`)
+
+            return {
+                result: false,
+                payload: []
+            }
+        }
+        else {
+            notify(`${dst_lines.length} ASN rules are added with policy ${this.#params.policy}`)
+            
             return {
                 result: true,
                 payload: dst_lines
@@ -342,6 +383,7 @@ class UnitTests {
         this.#test_rule_clash2quan_ipcidr()
         this.#test_rule_clash2quan_ipcidr_no_resolve()
         this.#test_rule_ipasn2quan()
+        this.#test_rule_ipasn_raw2quan()
     }
 
     #test_rewrite() {
@@ -496,6 +538,53 @@ IP-ASN ,   4538 // 中国教育科研网络中心
         this.#assert(result.payload[0] === 'IP-ASN,4134,DIRECT')
         this.#assert(result.payload[1] === 'IP-ASN,4538,DIRECT')
         this.#assert(result.payload[2] === 'IP-ASN,4812,DIRECT')
+
+        return true
+    }
+
+    #test_rule_ipasn_raw2quan() {
+        const content =
+            `<tr>
+<td><a href="/AS146958" title="AS146958 - Kakawan Human Resources Co Ltd">AS146958</a></td>
+<td>Kakawan Human Resources Co Ltd</td>
+<td class="alignright">0</td>
+<td class="alignright">0</td>
+<td class="alignright">1</td>
+<td class="alignright">1</td>
+</tr>
+<tr>
+<td><a href="/AS146753" title="AS146753 - kgzxnet">AS146753</a></td>
+<td>kgzxnet</td>
+<td class="alignright">0</td>
+<td class="alignright">0</td>
+<td class="alignright">1</td>
+<td class="alignright">1</td>
+</tr>
+<tr>
+<td><a href="/AS146745" title="AS146745 - ">AS146745</a></td>
+<td></td>
+<td class="alignright">0</td>
+<td class="alignright">0</td>
+<td class="alignright">1</td>
+<td class="alignright">1</td>
+</tr>`
+
+        var params = {
+            src: 'any',
+            dst: 'any',
+            type: 'rule',
+            subtype: 'ipasn-raw',
+            policy: 'DIRECT'
+        }
+
+        const conv = new RuleConverter(params, content)
+        var result = conv.convert()
+        notify(JSON.stringify(result))
+
+        this.#assert(result.result === true)
+        this.#assert(result.payload.length === 2)
+        this.#assert(result.payload[0] === 'IP-ASN,146958,DIRECT')
+        this.#assert(result.payload[1] === 'IP-ASN,146753,DIRECT')
 
         return true
     }
