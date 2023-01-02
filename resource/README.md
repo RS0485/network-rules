@@ -44,6 +44,7 @@
 | content  | 内容        | 使用base64编码的内容，完整的url不超过2048个字符，在线编码工具:[https://www.base64encode.org/](https://www.base64encode.org/) |
 
 **应用场景(rule):**
+
 大多数配置文件会在最后面添加两条GEOIP规则:
 ```
 GEOIP,LAN,DIRECT,no-resolve
@@ -53,6 +54,7 @@ GEOIP,CN,DIRECT
 使用`generate`方式可以直接在本地生成上述两条规则: https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=R0VPSVAsTEFOLERJUkVDVCxuby1yZXNvbHZlCkdFT0lQLENOLERJUkVDVA==, tag=direct rules, opt-parser=true, update-interval=259200
 
 **应用场景(rewrite):**
+
 可生成数量比较少的 `rewrite` 规则，例如
 ```
 hostname = *.google.cn

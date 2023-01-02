@@ -186,9 +186,32 @@ class ContentGenerator {
         this.#params = params
     }
 
+    base64_decode(encoded_string) {
+        // https://www.rfc-editor.org/rfc/rfc4648#section-4
+        var decoded_string = '';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+      
+        for (var i = 0; i < encoded_string.length; i += 4) {
+          const a = chars.indexOf(encoded_string[i]);
+          const b = chars.indexOf(encoded_string[i + 1]);
+          const c = chars.indexOf(encoded_string[i + 2]);
+          const d = chars.indexOf(encoded_string[i + 3]);
+      
+          decoded_string += String.fromCharCode((a << 2) | (b >> 4));
+          if (encoded_string[i + 2] !== '=') {
+            decoded_string += String.fromCharCode(((b & 15) << 4) | (c >> 2));
+          }
+          if (encoded_string[i + 3] !== '=') {
+            decoded_string += String.fromCharCode(((c & 3) << 6) | d);
+          }
+        }
+      
+        return decoded_string;
+    }
+
     generate() {
         // Input
-        const lines = atob(this.#params.content).split('\n')
+        const lines = this.base64_decode(this.#params.content).split('\n')
 
         var dst_lines = []
 
