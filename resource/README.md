@@ -41,16 +41,25 @@
 
 | 参数  | 参数值             | 说明                      |
 | ------- | --------------------- | --------------------------- |
-| content  | 内容        | 用户指定内容，使用`@`替代`,`, 使用 `\|`换行 |
+| content  | 内容        | 使用base64编码的内容，完整的url不超过2048个字符，在线编码工具:[https://www.base64encode.org/](https://www.base64encode.org/) |
 
-**应用场景:**
+**应用场景(rule):**
 大多数配置文件会在最后面添加两条GEOIP规则:
 ```
 GEOIP,LAN,DIRECT,no-resolve
 GEOIP,CN,DIRECT
 ```
 为了使其优先级最低，不能加在`filter_local`配置部分，而是必须加在`filter_remote`的最后面，这样就需要为这两条规则部署一个专门的配置文件。
-使用`generate`方式可以直接在本地生成上述两条规则: https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve|GEOIP@CN@DIRECT, tag=direct rules, opt-parser=true, update-interval=259200
+使用`generate`方式可以直接在本地生成上述两条规则: https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=R0VPSVAsTEFOLERJUkVDVCxuby1yZXNvbHZlCkdFT0lQLENOLERJUkVDVA==, tag=direct rules, opt-parser=true, update-interval=259200
+
+**应用场景(rewrite):**
+可生成数量比较少的 `rewrite` 规则，例如
+```
+hostname = *.google.cn
+^https?:\/\/(www?)\.google\.cn url 302 https://www.google.com.hk
+```
+使用 `generate`的方式生成上述规则:
+https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=aG9zdG5hbWUgPSAqLmdvb2dsZS5jbgpeaHR0cHM/OlwvXC8od3d3PylcLmdvb2dsZVwuY24gdXJsIDMwMiBodHRwczovL3d3dy5nb29nbGUuY29tLmhr, tag=Google CN, opt-parser=true, update-interval=259200, enabled=true
 
 ### 注意事项
 1. 本脚本没用自动识别功能，使用时必须正确地指定每一个参数

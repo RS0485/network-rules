@@ -1,8 +1,9 @@
 /**
  * @fileoverview JS Script to convert the resource to the format of Quantumult X.
  *
- * @author https://github.com/RS0485
- * @version 1.0.4
+ * @author RS0485
+ * @repo https://github.com/RS0485/network-rules/tree/main/resource
+ * @version 1.0.5
  *
  * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
@@ -187,8 +188,7 @@ class ContentGenerator {
 
     generate() {
         // Input
-        // GEOIP@LAN@DIRECT,no-resolve|GEOIP@CN@DIRECT
-        const lines = this.#params.content.replaceAll('@', ',').split('|')
+        const lines = atob(this.#params.content).split('\n')
 
         var dst_lines = []
 
@@ -241,10 +241,14 @@ class ResourceParser {
 
         const param_list = sections[1].split('&')
         for (const param of param_list) {
-            const param_sections = param.split('=')
-            if (param_sections.length != 2) {
+            const splitter_index = param.indexOf('=')
+            if (splitter_index === -1) {
                 return false
             }
+
+            var param_sections = []
+            param_sections.push(param.substring(0, splitter_index))
+            param_sections.push(param.substring(splitter_index+1))
 
             switch (param_sections[0]) {
                 case 'src': this.#params.src = param_sections[1]; break
@@ -326,7 +330,7 @@ class UnitTests {
             src: 'any',
             dst: 'quan',
             type: 'generate',
-            content: 'GEOIP@LAN@DIRECT,no-resolve|GEOIP@CN@DIRECT'
+            content: 'R0VPSVAsTEFOLERJUkVDVCxuby1yZXNvbHZlCkdFT0lQLENOLERJUkVDVA=='
         }
 
         const gen = new ContentGenerator(params)
@@ -343,6 +347,7 @@ class UnitTests {
         this.#test_resource_parser_ipcidr_no_resolve()
         this.#test_resource_parser_content_generator()
         this.#test_resource_parser_content_generator2()
+        this.#test_resource_parser_content_generator3()
     }
 
     #test_rule_clash2quan_domain() {
@@ -488,7 +493,7 @@ IP-ASN ,   4538 // 中国教育科研网络中心
     }
 
     #test_resource_parser_content_generator() {
-        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve', '')
+        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=R0VPSVAsTEFOLERJUkVDVCxuby1yZXNvbHZl', '')
 
         var result = parser.parse_params()
         this.#assert(result === true)
@@ -501,7 +506,7 @@ IP-ASN ,   4538 // 中国教育科研网络中心
     }
 
     #test_resource_parser_content_generator2() {
-        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=GEOIP@LAN@DIRECT!no-resolve|IP-CIDR,163.177.151.109/32,DIRECT|IP-ASN@13335@DIRECT', '')
+        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=R0VPSVAsTEFOLERJUkVDVCxuby1yZXNvbHZlCklQLUNJRFIsMTYzLjE3Ny4xNTEuMTA5LzMyLERJUkVDVApJUC1BU04sMTMzMzUsRElSRUNU', '')
 
         var result = parser.parse_params()
         this.#assert(result === true)
@@ -511,6 +516,19 @@ IP-ASN ,   4538 // 中国教育科研网络中心
 
         this.#assert(result.result === true)
         this.#assert(result.content === 'GEOIP,LAN,DIRECT,no-resolve\nIP-CIDR,163.177.151.109/32,DIRECT\nIP-ASN,13335,DIRECT', `content: ${result.content}`)
+    }
+
+    #test_resource_parser_content_generator3() {
+        const parser = new ResourceParser('https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/local-ips.yaml?src=any&dst=quan&type=generate&content=aG9zdG5hbWUgPSAqLmdvb2dsZS5jbgpeaHR0cHM/OlwvXC8od3d3PylcLmdvb2dsZVwuY24gdXJsIDMwMiBodHRwczovL3d3dy5nb29nbGUuY29tLmhr', '')
+
+        var result = parser.parse_params()
+        this.#assert(result === true)
+
+        result = parser.convert_content()
+        notify(JSON.stringify(result))
+
+        this.#assert(result.result === true)
+        this.#assert(result.content === ('hostname = *.google.cn\n^https?:\\/\\/(www?)\\.google\\.cn url 302 https://www.google.com.hk'), `content: ${result.content}`)
     }
 }
 
