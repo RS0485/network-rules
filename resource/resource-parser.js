@@ -3,7 +3,7 @@
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules/tree/main/resource
- * @version 1.0.5
+ * @version 1.0.6
  *
  * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
@@ -563,12 +563,18 @@ if (runtime === Runtimes.QuantumultX) {
         $done({ error: "failed to parse params from url, did you forget to specify any?" });
     }
     else {
-        result = parser.convert_content()
-        if (!result.result) {
-            $done({ error: "failed to convert content, please check the error message." });
+        try {
+            result = parser.convert_content()
+            if (!result.result) {
+                $done({ error: "failed to convert content, please check the error message." });
+            }
+            else {
+                $done({ content: result.content });
+            }
         }
-        else {
-            $done({ content: result.content });
+        catch(e) {
+            notify(`unexpected exception: ${e}`)
+            $done({ error: `unexpected exception: ${e}` });
         }
     }
 }
