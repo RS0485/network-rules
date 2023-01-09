@@ -7,9 +7,9 @@ on:
       - main
     paths-ignore:
       - "**/README.md"
-      - "rewrite/**'
-      - "rules/**'
-      - "scripts/**'
+      - "rewrite/**"
+      - "rules/**"
+      - "scripts/**"
 
 jobs:
   deploy:

@@ -61,8 +61,8 @@ $httpClient.get(
                     ip = ip.substring(0, 16) + '...'
                 }
 
-                if (isp.length > 16) {
-                    isp = isp.substring(0, 16) + '...'
+                if (isp.length > 32) {
+                    isp = isp.substring(0, 32) + '...'
                 }
 
                 geo_proxy = `代理IP: ${ip} ${country}\n${region}, ${city}, ${isp}`
