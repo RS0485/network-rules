@@ -35,7 +35,7 @@ $httpClient.get(
                 isp = isp.substring(0, 32) + '...'
             }
 
-            geo_direct = `直连IP: ${ip} ${country}${country_code}\n${region}, ${city}, ${isp}`
+            geo_direct = `直连IP: ${ip} ${country}\n${region}, ${city}, ${isp}`
         }
 
         $httpClient.get({
@@ -65,7 +65,7 @@ $httpClient.get(
                     isp = isp.substring(0, 16) + '...'
                 }
 
-                geo_proxy = `代理IP: ${ip} ${country}${country_code}\n${region}, ${city}, ${isp}`
+                geo_proxy = `代理IP: ${ip} ${country}\n${region}, ${city}, ${isp}`
             }
 
             body = {
