@@ -27,7 +27,7 @@ $httpClient.get(
           const region = json_data.regionName
           const isp = json_data.isp
 
-          geo_direct = `本地IP: ${ip} ${country}${country_code}\n${region}, ${city}, ${isp.substring(0, 32)}`
+          geo_direct = `直连IP: ${ip} ${country}${country_code}\n${region}, ${city}, ${isp.substring(0, 32)}`
       }
 
       $httpClient.get({

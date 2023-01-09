@@ -1,4 +1,4 @@
-name: 本地+代理IP地址信息
+name: 直连+代理IP地址信息
 desc: 同时查询本地和代理的IP信息显示在Tile，使用前需配置域名ip-api.com使用直连，域名api.ip.sb使用代理
 
 tiles:
