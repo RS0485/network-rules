@@ -7,9 +7,9 @@ on:
       - main
     paths-ignore:
       - "**/README.md"
-      - "**/*.yaml"
-      - "**/*.conf"
-      - "**/*.stoverride"
+      - "rewrite/**'
+      - "rules/**'
+      - "scripts/**'
 
 jobs:
   deploy:
@@ -20,3 +20,7 @@ jobs:
 
       - name: Run user script
         run: node ./resource/resource-parser.js
+
+      - name: Purge cache of jsdelivr
+        run: |
+          curl -X GET "https://purge.jsdelivr.net/gh/RS0485/"
