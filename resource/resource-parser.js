@@ -10,12 +10,12 @@
  *     示例: https://cdn.jsdelivr.net/gh/RS0485/V2rayDomains2Clash@generated/category-ads-all.yaml?src=clash&dst=quan&type=rule&subtype=domain&policy=REJECT, tag=category-ads-all, opt-parser=true, update-interval=259200
  *
  * 参数说明:
- *     src:         clash/quan                          源格式, any表示任意
- *     dst:         clash/quan                          目标格式, any表示任意
- *     type:        server/rule/rewrite/generate        订阅源的类型
- *     subtype      domain/ipcidr/ipasn/ipasn-raw/mixed type=rule时指定规则的类型
- *     policy:      [policy name]                       type=rule时指定分流策略
- *     content:     [base64 encoded string]             type=rule/rewrite时的内容
+ *     src:     clash/quan                          源格式, any表示任意
+ *     dst:     clash/quan                          目标格式, any表示任意
+ *     type:    server/rule/rewrite/generate        订阅源的类型
+ *     subtype  domain/ipcidr/ipasn/ipasn-raw/mixed type=rule时指定规则的类型
+ *     policy:  [policy name]                       type=rule时指定分流策略
+ *     content: [base64 encoded string]             type=generate时的内容
  *
  * 注意事项:
  *   1. 本脚本没用自动识别功能，使用时用户必须正确地指定每一个参数
