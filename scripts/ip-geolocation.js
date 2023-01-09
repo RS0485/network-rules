@@ -27,7 +27,7 @@ $httpClient.get(
           const region = json_data.regionName
           const isp = json_data.isp
 
-          geo_direct = `本地IP: ${country}${country_code} ${ip}\nISP: ${region}, ${city}, ${isp.substring(0, 12)}`
+          geo_proxy = `本地IP: ${ip}\n${country}${country_code}, ${region}, ${city}, ${isp.substring(0, 32)}`
       }
 
       $httpClient.get({
@@ -49,7 +49,7 @@ $httpClient.get(
               const region = json_data.region
               const isp = json_data.isp
 
-              geo_proxy = `代理IP: ${country}${country_code} ${ip}\nISP: ${region}, ${city}, ${isp.substring(0, 12)}`
+              geo_proxy = `代理IP: ${ip}\n${country}${country_code}, ${region}, ${city}, ${isp.substring(0, 32)}`
           }
 
           body = {
