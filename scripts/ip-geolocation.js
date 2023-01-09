@@ -1,40 +1,71 @@
 /*
- * 由@congcong0806编写
- * 原脚本地址：https://github.com/congcong0806/surge-list/blob/master/Script/ipcheck.js
- * 由@Rabbit-Spec修改
- * 更新日期：2022.06.15
- * 版本：1.1
+ * 同时查询本地和代理的IP信息(Stash 脚本)
+ * 
+ * author: RS0485
+ * repo: https://github.com/RS0485/network-rules
+ * note: 使用前配置域名ip-api.com使用直连，域名api.ip.sb使用代理
+ * 
  */
 
 $httpClient.get(
   {
-    url: 'http://ip-api.com/json/?lang=zh-CN',
-    headers: { referer: ' http://ip-api.com/' },
-  },
-  (error, response, data) => {
-    let jsonData = JSON.parse(data)
+      url: 'http://ip-api.com/json/?lang=zh-CN',
+      headers: { referer: ' http://ip-api.com/' },
+  }, (error, response, data) => {
+      var geo_direct = ''
 
-    let ip = jsonData.query
-    let country = getFlagEmoji(jsonData.countryCode)
-    let city = jsonData.city
-    let region = jsonData.regionName
-    let isp = jsonData.isp
+      if (error) {
+          geo_direct = error
+      }
+      else {
+          const json_data = JSON.parse(data)
 
-    body = {
-      title: 'IP地址信息',
-      content: `IP地址: ${ip}\n所在地: ${country}${region} - ${city}\n运营商: ${isp}`,
-      icon: 'globe.asia.australia.fill',
-      backgroundColor: '#0C9DFA',
-    }
+          const ip = json_data.query
+          const country_code = json_data.countryCode
+          const country = getFlagEmoji(country_code)
+          const city = json_data.city
+          const region = json_data.regionName
+          const isp = json_data.isp
 
-    $done(body);
-});
+          geo_direct = `本地IP: ${country}${country_code} ${ip}\nISP: ${region}, ${city}, ${isp.substring(0, 12)}`
+      }
 
+      $httpClient.get({
+          url: 'https://api.ip.sb/geoip',
+          headers: { "user-agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' },
+      }, (error, response, data) => {
+          var geo_proxy = ''
+
+          if (error) {
+              geo_proxy = error
+          }
+          else {
+              const json_data = JSON.parse(data)
+
+              const ip = json_data.ip
+              const country_code = json_data.country_code
+              const country = getFlagEmoji(country_code)
+              const city = json_data.city
+              const region = json_data.region
+              const isp = json_data.isp
+
+              geo_proxy = `代理IP: ${country}${country_code} ${ip}\nISP: ${region}, ${city}, ${isp.substring(0, 12)}`
+          }
+
+          body = {
+              title: "𝐈𝐏 𝐆𝐄𝐎𝐋𝐎𝐂𝐀𝐓𝐈𝐎𝐍",
+              content: `${geo_direct}\n${geo_proxy}`,
+              icon: "network"
+          }
+          $done(body);
+      });
+  });
 
 function getFlagEmoji(countryCode) {
+  // author @congcong0806
   const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt());
+      .toUpperCase()
+      .split('')
+      .map(char => 127397 + char.charCodeAt());
   return String.fromCodePoint(...codePoints);
 }

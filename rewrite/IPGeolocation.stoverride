@@ -1,10 +1,10 @@
-name: IP地址信息
-desc: 查询当前IP地址信息并显示在Tile
+name: 本地+代理IP地址信息
+desc: 同时查询本地和代理的IP信息显示在Tile，使用前需配置域名ip-api.com使用直连，域名api.ip.sb使用代理
 
 tiles:
   - name: ip-geolocation 
     interval: 3600
-    title: 'IP地址信息'
+    title: '𝐈𝐏 𝐆𝐄𝐎𝐋𝐎𝐂𝐀𝐓𝐈𝐎𝐍'
     content: '刷新中...'
     icon: 'globe.asia.australia.fill'
     backgroundColor: '#0C9DFA'
