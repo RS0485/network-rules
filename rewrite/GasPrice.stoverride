@@ -1,0 +1,15 @@
+name: 实时油价查询
+desc: 通过网络API查询当前油价，默认查询地区为广东省，可修改脚本指定其它地区
+
+tiles:
+  - name: gas-price
+    interval: 3600
+    title: '实时油价信息'
+    content: '刷新中...'
+    icon: 'fuelpump.fill'
+    backgroundColor: '#FB8C00'
+
+script-providers:
+  gas-price:
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/gas-price.js
+    interval: 86400
