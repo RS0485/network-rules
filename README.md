@@ -1,2 +1,2 @@
 # network-rules
-Clash/Quantumult X rules and scripts
+Clash(Stash)/Quantumult X rules and scripts

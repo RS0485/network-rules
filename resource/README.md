@@ -1,5 +1,7 @@
 # Quantumult X 资源解析器
 
+此资源转换脚本主要用于将Clash等APP的订阅规则转换成Quantumult X的规则。
+
 ## 使用方式
 1. 在Quantumult X的配置文件中加入资源解析器
     - GITHUB: `resource_parser_url=https://raw.githubusercontent.com/RS0485/network-rules/main/resource/resource-parser.js`
