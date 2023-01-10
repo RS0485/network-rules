@@ -9,7 +9,7 @@ tiles:
     title: '网络流量统计'
     content: '刷新中...'
     icon: 'arrow.up.arrow.down.circle.fill'
-    backgroundColor: '#0C9DFA'
+    backgroundColor: '#4CAF50'
 
 script-providers:
   network-traffic:
