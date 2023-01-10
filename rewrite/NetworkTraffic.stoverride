@@ -1,0 +1,18 @@
+name: 网络流量统计
+desc: 统计详细的上传、下载流量以及活动连接显示在Tile，每60s刷新一次
+
+external-controller: '127.0.0.1:9090'
+secret: 'RS0485'
+
+tiles:
+  - name: network-traffic 
+    interval: 60
+    title: '网络流量统计'
+    content: '刷新中...'
+    icon: 'arrow.up.arrow.down.circle.fill'
+    backgroundColor: '#0C9DFA'
+
+script-providers:
+  network-traffic:
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/network-traffic.js
+    interval: 86400

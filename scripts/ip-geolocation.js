@@ -1,16 +1,17 @@
 /*
  * 同时查询本地和代理的IP信息(Stash 脚本)
  * 
- * author: RS0485
- * repo: https://github.com/RS0485/network-rules
- * note: 使用前请配置分流规则->域名ip-api.com使用直连，域名ipgeolocation.io使用代理
+ * @author RS0485
+ * @repo https://github.com/RS0485/network-rules
+ * @version 1.0.1
+ * @note 使用前请配置分流规则->域名ip-api.com使用直连，域名ipgeolocation.io使用代理
  * 
  */
 
 $httpClient.get(
 	{
 		url: 'http://ip-api.com/json/?lang=zh-CN',
-		headers: { 'referer': ' http://ip-api.com/' },
+		headers: { 'referer': 'http://ip-api.com/' },
 	}, (error, response, data) => {
 		var geo_direct = ''
 
