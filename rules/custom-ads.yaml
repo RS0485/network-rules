@@ -44,6 +44,6 @@ payload:
   # 华为运动健康
   - "sportsuggest.hicloud.com"
   # 10010
-  - smartad.10010.com
-  - analytics2.10010.com
+  - "smartad.10010.com"
+  - "analytics2.10010.com"
   
