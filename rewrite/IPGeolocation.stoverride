@@ -1,5 +1,5 @@
 name: 直连+代理IP地址信息
-desc: 同时查询直连和代理的IP信息显示在Tile，使用前请配置分流规则->域名ip-api.com使用直连，域名ipinfo.io使用代理
+desc: 同时查询直连和代理的IP信息显示在Tile，使用前请配置分流规则->域名ip-api.com使用直连，域名ipgeolocation.io使用代理
 
 tiles:
   - name: ip-geolocation 

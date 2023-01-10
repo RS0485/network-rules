@@ -3,7 +3,7 @@
  * 
  * author: RS0485
  * repo: https://github.com/RS0485/network-rules
- * note: 使用前请配置分流规则->域名ip-api.com使用直连，域名ipinfo.io使用代理
+ * note: 使用前请配置分流规则->域名ip-api.com使用直连，域名ipgeolocation.io使用代理
  * 
  */
 
@@ -40,9 +40,9 @@ $httpClient.get(
 
 		$httpClient.get(
 			{
-				url: 'http://ipinfo.io/widget',
+				url: 'https://api.ipgeolocation.io/ipgeo?lang=cn',
 				headers: {
-					'referer': ' http://ipinfo.io/',
+					'referer': 'https://ipgeolocation.io/',
 					'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 				},
 			}, (error, response, data) => {
@@ -55,11 +55,11 @@ $httpClient.get(
 					const json_data = JSON.parse(data)
 
 					var ip = json_data.ip
-					var country_code = json_data.country
+					var country_code = json_data.country_code2
 					var country = getFlagEmoji(country_code)
 					var city = json_data.city
-					var region = json_data.region
-					var isp = json_data.company.name
+					var region = json_data.state_prov
+					var isp = json_data.isp
 
 					if (ip.length > 16) {
 						ip = ip.substring(0, 16) + '...'

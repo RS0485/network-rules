@@ -11,5 +11,9 @@ payload:
   - "+.apkpure.com"
   - "+.cnbeta.com"
   - "+.cnbeta.com.tw"
+  # IP-API
   - "+.ipinfo.io"
   - "+.ip.sb"
+  - "+.ip.gs"
+  - "+.wtfismyip.com"
+  - "+.ipgeolocation.io"
