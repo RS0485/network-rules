@@ -2,7 +2,6 @@ name: 网络流量统计
 desc: 统计详细的上传、下载流量以及活动连接显示在Tile，每60s刷新一次
 
 external-controller: '127.0.0.1:9090'
-secret: 'RS0485'
 
 tiles:
   - name: network-traffic 

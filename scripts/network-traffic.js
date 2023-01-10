@@ -9,11 +9,7 @@
 
 $httpClient.get(
 	{
-		url: 'http://127.0.0.1:9090/connections',
-		headers: {
-			'referer': 'http://127.0.0.1:9090',
-			'authorization': 'Bearer RS0485'
-		},
+		url: 'http://localhost:9090/connections',
 	}, (error, response, data) => {
 		if (error) {
 			done({});
