@@ -40,7 +40,7 @@ $httpClient.get(
 
 		$httpClient.get(
 			{
-				url: 'http://ipinfo.io/widget/',
+				url: 'http://ipinfo.io/widget',
 				headers: {
 					'referer': ' http://ipinfo.io/',
 					'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
