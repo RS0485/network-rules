@@ -9,7 +9,7 @@
 
 // 指定查询地区
 var region = 'hainan'
-if (typeof $argument != 'undefined' && $argument !== '') {
+if (typeof $argument !== 'undefined' && $argument !== '') {
 	region = $argument
 }
 
