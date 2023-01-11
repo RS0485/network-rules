@@ -1,5 +1,5 @@
 name: 实时油价查询
-desc: 通过网络API查询当前油价，默认查询地区为广东省，可修改脚本指定其它地区
+desc: 通过网络API查询当前油价，默认查询地区为广东省，可修改覆写的argument指定其它地区
 
 tiles:
   - name: gas-price
@@ -8,6 +8,7 @@ tiles:
     content: '刷新中...'
     icon: 'fuelpump.fill'
     backgroundColor: '#FB8C00'
+    argument: 'guangdong'
 
 script-providers:
   gas-price:

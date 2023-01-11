@@ -3,12 +3,15 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.0
+ * @version 1.0.1
  * 
  */
 
 // 指定查询地区
-const region = 'guangdong'
+var region = 'hainan'
+if (typeof $argument != 'undefined' && $argument !== '') {
+	region = $argument
+}
 
 const query_addr = `http://m.qiyoujiage.com/${region}.shtml`
 
@@ -42,7 +45,7 @@ $httpClient.get(
 				})
 			}
 
-			if (prices.length != 4) {
+			if (prices.length !== 4) {
 				console.log(`解析油价信息失败, 数量=${prices.length}, 请反馈至 @RS0485: URL=${query_addr}`)
 				done({})
 			}
