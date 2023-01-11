@@ -34,11 +34,11 @@ $task.fetch(option).then(response => {
 
 		const ip = match[1]
 		const support_v6 = ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}(\/\d+)?$/) ? '不支持' : '支持'
-		console.log(`ip address=${ip}, support_v6=${support_v6}`)
+		console.log(`server=${$environment.params}, ip address=${ip}, support_v6=${support_v6}`)
 
 		$done({
 			'title': 'IPv6可用性测试',
-			'htmlMessage': `IP: ${ip}<br>该服务器<b>${support_v6}</b>IPv6`
+			'htmlMessage': `节点: ${$environment.params}<br>IP: ${ip}<br>该服务器<b>${support_v6}</b>IPv6`
 		});
 	}
 }, reason => {
