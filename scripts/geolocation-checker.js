@@ -5,34 +5,10 @@
  * @repo https://github.com/RS0485/network-rules
  * @version 1.0.1
  * @note 配置方式: 
- *   - 作为节点信息解析器:      geo_location_checker=http://ip-api.com/json/?lang=zh-CN, https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-parser.js
- *   - 作为task脚本查询直连IP: event-interaction https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-parser.js, tag=查询公网IP信息, img-url=network.system, enabled=true
+ *   - 作为节点信息解析器:      geo_location_checker=http://ip-api.com/json/?lang=zh-CN, https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-checker.js
+ *   - 作为task脚本查询直连IP:  event-interaction https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-checker.js, tag=查询公网IP信息, img-url=network.system, enabled=true
  * 
  */
-
-if (typeof $response === 'undefined') {
-    // Require API when called by a task
-    const option = {
-        url: 'http://ip-api.com/json/?lang=zh-CN',
-        opts: {
-            policy: 'DIRECT'
-        },
-        timeout: 3000,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-        },
-    }
-
-    $task.fetch(option).then(response => {
-        handle_response(response, true)
-    }, reason => {
-        console.log(`fetch error: ${reason.error}`)
-        $done();
-    })
-}
-else {
-    handle_response($response, false)
-}
 
 const handle_response = (response, called_by_task) => {
     if (response.statusCode !== 200) {
@@ -67,6 +43,30 @@ const handle_response = (response, called_by_task) => {
             $done({ title, subtitle, ip, description });
         }
     }
+}
+
+if (typeof $response === 'undefined') {
+    // Require API when called by a task
+    const option = {
+        url: 'http://ip-api.com/json/?lang=zh-CN',
+        opts: {
+            policy: 'DIRECT'
+        },
+        timeout: 3000,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+        },
+    }
+
+    $task.fetch(option).then(response => {
+        handle_response(response, true)
+    }, reason => {
+        console.log(`fetch error: ${reason.error}`)
+        $done();
+    })
+}
+else {
+    handle_response($response, false)
 }
 
 function getFlagEmoji(countryCode) {
