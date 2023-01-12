@@ -1,5 +1,5 @@
 /*
- * Slash网络流量统计
+ * Stash网络流量统计
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
