@@ -2,7 +2,7 @@
 # https://raw.githubusercontent.com/jnlaoshu/MySelf/master/QuantumultX/Script.conf
 # https://raw.githubusercontent.com/Infatuation-Fei/rule/main/Stash/Override/Rewrite/Adblock/Advertising.stoverride
 
-name: 重写去广告
+name: 重写去广告 @RS0485
 desc: 私人定制整合的重写去广告规则，仅包含几个常见APP
 
 http:
