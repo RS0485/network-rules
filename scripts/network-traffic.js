@@ -37,9 +37,9 @@ $httpClient.get(
 
 
 function format_traffic(traffic_in_bytes) {
-    const KB = 1000
-    const MB = 1000 * 1000
-    const GB = 1000 * 1000 * 1000
+	const KB = 1000
+	const MB = 1000 * 1000
+	const GB = 1000 * 1000 * 1000
 
     var friendly_traffic = 0
     var friendly_unit = 'B'
