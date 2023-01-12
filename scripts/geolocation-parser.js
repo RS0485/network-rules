@@ -6,7 +6,7 @@
  * @version 1.0.1
  * @note 配置方式: 
  *   - 作为节点信息解析器:      geo_location_checker=http://ip-api.com/json/?lang=zh-CN, https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-parser.js
- *   - 作为task脚本查询直连IP:  https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-parser.js, tag=查询公网IP信息, img-url=network.system, enabled=true
+ *   - 作为task脚本查询直连IP: event-interaction https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/geolocation-parser.js, tag=查询公网IP信息, img-url=network.system, enabled=true
  * 
  */
 
@@ -31,7 +31,7 @@ if (typeof $response === 'undefined') {
     })
 }
 else {
-    handle_response(response, false)
+    handle_response($response, false)
 }
 
 const handle_response = (response, called_by_task) => {
