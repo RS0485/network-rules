@@ -9,6 +9,8 @@ payload:
   # tailscale relay servers
   - "+.tailscale.com"
   - "+.tailscale.io"
+  # Let's Encrypt
+  - "+.lencr.org"
   # NTP
   - "+.ntp.org"
   - "+.ntp.org.cn"

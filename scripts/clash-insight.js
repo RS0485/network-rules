@@ -6,7 +6,7 @@
  * @version 1.0.4
  * @description 分析Clash的连接信息并给出配置优化建议
  * 
- * 此脚本可用于分析任意开启tracing服务的Clash服务器，通过参数指定服务器地址
+ * 目前只支持Stash，通用Clash服务器的支持还在开发中...
  *
  * 脚本参数格式: name,output_format,api_addr,api_token
  *   - name:            Clash服务器名称
