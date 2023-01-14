@@ -3,35 +3,66 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.5
- * @description 分析Clash的连接信息并给出配置优化建议
- * 
- * 目前只支持Stash，通用Clash服务器的支持还在开发中...
+ * @version 1.0.6
+ * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端
  *
- * 脚本参数格式: name,output_format,api_addr,api_token
- *   - name:            Clash服务器名称
+ * 脚本参数格式: name,output_format,api_addr,api_token,server_type
+ *   - name:            Clash API服务器的名称
  *   - output_format:   指定脚本执行后的输出, tile-Stash小组件 html-html网页 json-json数据用于二次开发
  *   - api_addr:        Clash API地址
  *   - api_token:       API token
+ *   - server_type:     Clash API服务器的类型, stash 或 clash
  */
 
-const version = '1.0.5'
+const version = '1.0.6'
 
-var server_name = 'Stash'
-var output_format = 'tile'
-var api_addr = 'http://localhost:9090/connections'
-var api_token = ''
+const ServerTypes = {
+    Stash: "stash",
+    Clash: "clash"
+}
 
-var parameter = 'Stash iOS,html,http://localhost:9090/connections,'
+const OutputFormats = {
+    Tile: "tile",
+    Html: "html",
+    Json: "json"
+}
+
+var settings = {
+    server_name: 'Stash iOS',
+    output_format: OutputFormats.Html,
+    api_addr: 'http://localhost:9090/connections',
+    api_token: '',
+    server_type: ServerTypes.Stash
+}
+
+var parameter = 'Stash iOS,tile,http://localhost:9090/connections,api_token1234,stash'
 if (typeof $argument !== 'undefined' && $argument !== '') {
     parameter = $argument
 }
 const params = parameter.split(',')
-if (params.length === 4) {
-    server_name = params[0]
-    output_format = params[1]
-    api_addr = params[2]
-    api_token = params[3]
+if (params.length >= 4) {
+    settings.server_name = params[0]
+
+    if (params[1] === 'tile') {
+        settings.output_format = OutputFormats.Tile
+    }
+    else if (params[1] === 'html') {
+        settings.output_format = OutputFormats.Html
+    }
+    else {
+        settings.output_format = OutputFormats.Json
+    }
+
+    settings.api_addr = params[2]
+    settings.api_token = params[3]
+
+    // 最初发布的版本没有这个字段，采用下面的逻辑往前兼容
+    if (params.length > 4) {
+        settings.server_type = params[4] == 'clash' ? ServerTypes.Clash : ServerTypes.Stash
+    }
+    else {
+        settings.server_type = ServerTypes.Stash
+    }
 }
 
 function format_traffic(traffic_in_bytes) {
@@ -65,7 +96,38 @@ function format_traffic(traffic_in_bytes) {
     }
 }
 
-function perform_analysis(content) {
+function convert_connection_object(src_connections, server_type) {
+    // 将Stash/Clash 对象转换成通用对象
+    common_connections = []
+
+    src_connections.forEach(src_connection => {
+        const common_connection = {
+            start: src_connection.start,
+            network: src_connection.metadata.network,
+            host: src_connection.metadata.host,
+            destinationIP: src_connection.metadata.destinationIP,
+            destinationPort: src_connection.metadata.destinationPort,
+            rule: src_connection.rule,
+            rulePayload: src_connection.rulePayload,
+            chains: src_connection.chains,
+
+            upload: server_type === ServerTypes.Stash ? src_connection.upload.total : src_connection.upload,
+            download: server_type === ServerTypes.Stash ? src_connection.download.total : src_connection.download,
+            dns_resolve_time: server_type === ServerTypes.Stash ?
+                (src_connection.metadata.tracing.hasOwnProperty("dnsQuery") ? src_connection.metadata.tracing.dnsQuery : 0) : -1,
+            connect_time: server_type === ServerTypes.Stash ?
+                (src_connection.metadata.tracing.hasOwnProperty("connect") ? src_connection.metadata.tracing.connect : 0) : -1,
+            handshake_time: server_type === ServerTypes.Stash ?
+                (src_connection.metadata.tracing.hasOwnProperty("handshake") ? src_connection.metadata.tracing.handshake : 0) : -1
+        }
+
+        common_connections.push(common_connection)
+    })
+
+    return common_connections
+}
+
+function perform_analysis(content, server_type) {
     const json_data = JSON.parse(content)
 
     const active_connections = json_data.connections.length
@@ -74,12 +136,19 @@ function perform_analysis(content) {
 
     // DNS 分析
     // 触发DNS解析的记录
-    const dns_resolved = json_data.connections.filter(c => c.metadata.tracing.hasOwnProperty("dnsQuery"))
+    var dns_resolved = []
     // 平均DNS解析时间
-    var avg_resolve_time = 0
-    if (dns_resolved.length > 0) {
-        const sum = dns_resolved.reduce((acc, curr) => acc + curr.metadata.tracing.dnsQuery, 0)
-        avg_resolve_time = (sum / dns_resolved.length).toFixed(2)
+    var avg_resolve_time = -1
+    if (server_type === ServerTypes.Stash) {
+        dns_resolved = json_data.connections.filter(c => c.metadata.tracing.hasOwnProperty("dnsQuery"))
+        if (dns_resolved.length > 0) {
+            const sum = dns_resolved.reduce((acc, curr) => acc + curr.metadata.tracing.dnsQuery, 0)
+            avg_resolve_time = (sum / dns_resolved.length).toFixed(2)
+        }
+    }
+    else {
+        dns_resolved = json_data.connections.filter(c => (c.metadata.host !== '' && c.metadata.destinationIP !== ''))
+        avg_resolve_time = -1
     }
 
     // 非必要的DNS解析: 最终出口不是'DIRECT'时走代理，但是该记录触发了DNS解析来匹配规则, 最优的策略是代理的域名不需要DNS解析时间
@@ -88,12 +157,13 @@ function perform_analysis(content) {
 
     // 未匹配规则的记录
     // 数量越多说明规则越不完善
-    const final_matched = json_data.connections.filter(c => c.metadata.ruleType === 'MATCH')
+    const final_matched = json_data.connections.filter(c => (c.metadata.ruleType === 'MATCH' || c.metadata.ruleType === 'Match'))
 
     // 网络类型分析
-    const network_tcp = json_data.connections.filter(c => c.metadata.network === 'TCP')
-    const network_udp = json_data.connections.filter(c => c.metadata.network === 'UDP')
-    const network_http = json_data.connections.filter(c => c.metadata.network === 'HTTP' || c.metadata.network === 'HTTPS')
+    const network_tcp = json_data.connections.filter(c => (c.metadata.network === 'TCP' || c.metadata.network === 'tcp'))
+    const network_udp = json_data.connections.filter(c => (c.metadata.network === 'UDP' || c.metadata.network === 'udp'))
+    const network_http = json_data.connections.filter(c => (c.metadata.network === 'HTTP' || c.metadata.network === 'HTTPS'
+        || c.metadata.network === 'http' || c.metadata.network === 'https'))
 
     return {
         active_connections: active_connections,
@@ -105,11 +175,11 @@ function perform_analysis(content) {
             unit: 'ms'
         },
         connections: {
-            redundant_dns: redundant_dns,
-            final_matched: final_matched,
-            network_tcp: network_tcp,
-            network_udp: network_udp,
-            network_http: network_http
+            redundant_dns: convert_connection_object(redundant_dns, server_type),
+            final_matched: convert_connection_object(final_matched, server_type),
+            network_tcp: convert_connection_object(network_tcp, server_type),
+            network_udp: convert_connection_object(network_udp, server_type),
+            network_http: convert_connection_object(network_http, server_type)
         }
     }
 }
@@ -156,7 +226,7 @@ function generate_html(ana_result) {
 </head>
 
 <body>
-    <h1>${server_name} <span style="background-color: #000000; color: #00FF00; padding: 0 3px;">Insight</span></h1>
+    <h1>${settings.server_name} <span style="background-color: #000000; color: #00FF00; padding: 5px 5px;">Insight</span></h1>
     <p>v${version} by <a title="Visit source code on github" href="https://github.com/RS0485/network-rules">RS0485</a> </p>`
 
     const prefix = '</body> </html>'
@@ -199,19 +269,18 @@ function generate_html(ana_result) {
         var idx = 0
         connections.forEach(record => {
             idx++
-            const upload = format_traffic(record.upload.total)
-            const download = format_traffic(record.download.total)
-            const resolve_time = record.metadata.tracing.hasOwnProperty('dnsQuery') ? record.metadata.tracing.dnsQuery : 0
+            const upload = format_traffic(record.upload)
+            const download = format_traffic(record.download)
 
             insight_table.push([
                 idx,
-                `${record.metadata.network}`,
-                `${record.metadata.host}`,
-                `${record.metadata.destinationIP}:${record.metadata.destinationPort}`,
+                `${record.network}`,
+                `${record.host}`,
+                `${record.destinationIP}:${record.destinationPort}`,
                 `${record.rule}: ${record.rulePayload}`,
                 `${record.chains[0]}`,
                 `↑ ${upload.value} ${upload.unit}  ↓ ${download.value} ${download.unit}`,
-                `${resolve_time} ms`])
+                `${record.dns_resolve_time} ms`])
         })
 
         return create_table_node(title, description, tips, insight_table)
@@ -264,7 +333,7 @@ function generate_tile(ana_result) {
     const redundant_dns = ana_result.connections.redundant_dns
 
     body = {
-        title: `${server_name} Insight`,
+        title: `${settings.server_name} Insight`,
         content: `↑ ${upload_traffic.value} ${upload_traffic.unit}   ↓ ${download_traffic.value} ${download_traffic.unit}\n活动连接: ${active_connections}   冗余DNS: ${redundant_dns.length}`,
         icon: "arrow.up.arrow.down.circle.fill"
     }
@@ -275,23 +344,24 @@ function generate_tile(ana_result) {
 function generate_json(ana_result) {
     return {
         version: version,
-        server_name: server_name,
-        api_addr: api_addr,
+        server_name: settings.server_name,
+        server_type: settings.server_type,
+        api_addr: settings.api_addr,
         payload: ana_result
     }
 }
 
 $httpClient.get(
     {
-        url: api_addr,
+        url: settings.api_addr,
     }, (error, response, data) => {
         if (error) {
             done({});
         }
         else {
-            const json_data = perform_analysis(data)
+            const json_data = perform_analysis(data, settings.server_type)
 
-            if (output_format === 'json') {
+            if (settings.output_format === OutputFormats.Json) {
                 const content = generate_json(json_data)
 
                 $done({
@@ -302,7 +372,7 @@ $httpClient.get(
                     }, body: JSON.stringify(content)
                 });
             }
-            else if (output_format === 'html') {
+            else if (settings.output_format === OutputFormats.Html) {
                 const content = generate_html(json_data)
 
                 $done({
