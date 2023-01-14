@@ -157,7 +157,7 @@ function perform_analysis(content, server_type) {
 
     // 未匹配规则的记录
     // 数量越多说明规则越不完善
-    const final_matched = json_data.connections.filter(c => (c.metadata.ruleType === 'MATCH' || c.metadata.ruleType === 'Match'))
+    const final_matched = json_data.connections.filter(c => (c.rule === 'MATCH' || c.rule === 'Match'))
 
     // 网络类型分析
     const network_tcp = json_data.connections.filter(c => (c.metadata.network === 'TCP' || c.metadata.network === 'tcp'))
