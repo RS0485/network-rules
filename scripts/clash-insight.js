@@ -297,9 +297,9 @@ $httpClient.get(
                 $done({
                     status: 200,
                     headers: {
-                        'Content-Type': 'text/json;charset=UTF-8',
+                        'Content-Type': 'application/json',
                         'Served-By': `Clash Insight v${version}`
-                    }, body: content
+                    }, body: JSON.stringify(content)
                 });
             }
             else if (output_format === 'html') {
