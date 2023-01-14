@@ -3,7 +3,7 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.4
+ * @version 1.0.5
  * @description 分析Clash的连接信息并给出配置优化建议
  * 
  * 目前只支持Stash，通用Clash服务器的支持还在开发中...
@@ -15,7 +15,7 @@
  *   - api_token:       API token
  */
 
-const version = '1.0.4'
+const version = '1.0.5'
 
 var server_name = 'Stash'
 var output_format = 'tile'
@@ -295,9 +295,10 @@ $httpClient.get(
                 const content = generate_json(json_data)
 
                 $done({
-                    status: 'HTTP/1.1 200',
+                    status: 200,
                     headers: {
-                        'Content-Type': 'text/json;charset=UTF-8'
+                        'Content-Type': 'text/json;charset=UTF-8',
+                        'Served-By': `Clash Insight v${version}`
                     }, body: content
                 });
             }
@@ -305,9 +306,10 @@ $httpClient.get(
                 const content = generate_html(json_data)
 
                 $done({
-                    status: 'HTTP/1.1 200',
+                    status: 200,
                     headers: {
-                        'Content-Type': 'text/html;charset=UTF-8'
+                        'Content-Type': 'text/html;charset=UTF-8',
+                        'Served-By': `Clash Insight v${version}`
                     }, body: content
                 });
             }
