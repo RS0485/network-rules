@@ -3,18 +3,18 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.6
+ * @version 1.0.7
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端
  *
  * 脚本参数格式: name,output_format,api_addr,api_token,server_type
- *   - name:            Clash API服务器的名称
+ *   - name:            Clash 客户端的名称
  *   - output_format:   指定脚本执行后的输出, tile-Stash小组件 html-html网页 json-json数据用于二次开发
  *   - api_addr:        Clash API地址
  *   - api_token:       API token
- *   - server_type:     Clash API服务器的类型, stash 或 clash
+ *   - server_type:     Clash 客户端的类型, 支持 stash 或 clash
  */
 
-const version = '1.0.6'
+const version = '1.0.7'
 
 const ServerTypes = {
     Stash: "stash",
@@ -105,6 +105,8 @@ function convert_connection_object(src_connections, server_type) {
             start: src_connection.start,
             network: src_connection.metadata.network,
             host: src_connection.metadata.host,
+            sourceIP: src_connection.metadata.sourceIP,
+            sourcePort: src_connection.metadata.sourcePort,
             destinationIP: src_connection.metadata.destinationIP,
             destinationPort: src_connection.metadata.destinationPort,
             rule: src_connection.rule,
@@ -165,6 +167,12 @@ function perform_analysis(content, server_type) {
     const network_http = json_data.connections.filter(c => (c.metadata.network === 'HTTP' || c.metadata.network === 'HTTPS'
         || c.metadata.network === 'http' || c.metadata.network === 'https'))
 
+    // 最近10个请求
+    json_data.connections.sort(function (a, b) {
+        return new Date(b.start) - new Date(a.start)
+    })
+    const recent_requests = json_data.connections.slice(0, 10)
+
     return {
         active_connections: active_connections,
         upload_traffic: upload_traffic,
@@ -175,6 +183,7 @@ function perform_analysis(content, server_type) {
             unit: 'ms'
         },
         connections: {
+            recent_requests: convert_connection_object(recent_requests, server_type),
             redundant_dns: convert_connection_object(redundant_dns, server_type),
             final_matched: convert_connection_object(final_matched, server_type),
             network_tcp: convert_connection_object(network_tcp, server_type),
@@ -260,6 +269,7 @@ function generate_html(ana_result) {
             '#',
             'network',
             'host',
+            'source',
             'destination',
             'rule',
             'outbound',
@@ -276,6 +286,7 @@ function generate_html(ana_result) {
                 idx,
                 `${record.network}`,
                 `${record.host}`,
+                `${record.sourceIP}:${record.sourcePort}`,
                 `${record.destinationIP}:${record.destinationPort}`,
                 `${record.rule}: ${record.rulePayload}`,
                 `${record.chains[0]}`,
@@ -285,6 +296,12 @@ function generate_html(ana_result) {
 
         return create_table_node(title, description, tips, insight_table)
     }
+
+    html += create_insight_node(
+        '最近请求',
+        '以下是最近的10个请求。',
+        '',
+        ana_result.connections.recent_requests)
 
     html += create_insight_node(
         '不必要的DNS解析',
