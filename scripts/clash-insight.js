@@ -3,7 +3,7 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.7
+ * @version 1.0.8
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端
  *
  * 脚本参数格式: name,output_format,api_addr,api_token,server_type
@@ -14,7 +14,7 @@
  *   - server_type:     Clash 客户端的类型, 支持 stash 或 clash
  */
 
-const version = '1.0.7'
+const version = '1.0.8'
 
 const ServerTypes = {
     Stash: "stash",
@@ -171,7 +171,9 @@ function perform_analysis(content, server_type) {
     json_data.connections.sort(function (a, b) {
         return new Date(b.start) - new Date(a.start)
     })
-    const recent_requests = json_data.connections.slice(0, 10)
+    const recent_requests = json_data.connections.filter(function (con) {
+        return con.metadata.host !== 'localhost' && con.metadata.host !== 'clash.insight'
+    }).slice(0, 10)
 
     return {
         active_connections: active_connections,
