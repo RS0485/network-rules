@@ -13,7 +13,7 @@ if (typeof $argument !== 'undefined' && $argument !== '') {
 	region = $argument
 }
 
-const region_pref = $persistentStore.read("ga_price_region")
+const region_pref = $persistentStore.read("gas_price_region")
 if (typeof region_pref !== 'undefined' && region_pref !== '') {
 	region = region_pref
 }
