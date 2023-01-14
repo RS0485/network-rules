@@ -3,14 +3,19 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.1
+ * @version 1.0.2
  * 
  */
 
-// 指定查询地区
+// 指定查询地区，可通过argument或persistentStore设置，后者优先级高
 var region = 'hainan'
 if (typeof $argument !== 'undefined' && $argument !== '') {
 	region = $argument
+}
+
+const region_pref = $persistentStore.read("ga_price_region")
+if (typeof region_pref !== 'undefined' && region_pref !== '') {
+	region = region_pref
 }
 
 const query_addr = `http://m.qiyoujiage.com/${region}.shtml`
