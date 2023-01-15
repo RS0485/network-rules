@@ -3,20 +3,40 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.9
- * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端
+ * @version 1.1.0
+ * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Stash和Quantumult X调用
  *
+ * 使用方式:
+ *   > Stash
+ *     1. 添加覆写，可分析Stash APP连接信息 https://raw.githubusercontent.com/RS0485/network-rules/main/rewrite/StashInsight.stoverride
+ *     2. 如需分析其它clash客户端的信息，可新建一个覆写，并添重写规则，示例:
+ *      - match: ^https?://clash.insight:9090/html/myclash$
+ *        name: clash-insight
+ *        type: response
+ *        require-body: false
+ *        timeout: 5
+ *        debug: false
+ *        argument: 'My Clash,html,http://myclash_address/connections,,clash'
+ * 
+ *   > Quantumult X
+ *     1. 新建一组重写配置，可以添加为rewrite_remote，也可以直接添加到Quantumult X配置文件，内容如下:
+ *       hostname = clash.insight
+ *       ^https?:\/\/clash.insight:9090\/html\/myclash$ url script-echo-response https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/clash-insight.js
+ *     2. 在Quantumult X的iCloud目录的配置文件 "RS0485/clash-insight.txt"设置参数(首次运行自动创建)，内容示例: My Clash,html,http://myclash_address/connections,,clash
+ *     3. 提示：Quantumult X的script-echo-response重写不需要与服务器建立真实连接，所以配置里面的端口号可以不需要，这里只是为了与Stash保持一致
+ * 
  * 脚本参数格式: name,output_format,api_addr,api_token,api_type
  *   - name:            Clash 客户端的名称
  *   - output_format:   指定脚本执行后的输出, tile-Stash小组件 html-html网页 json-json数据用于二次开发
  *   - api_addr:        Clash API地址
  *   - api_token:       API token
  *   - api_type:        Clash 客户端的类型, 支持 stash 或 clash
+ * 
  */
 
-const version = '1.0.9'
+const version = '1.1.0'
 
-const ServerTypes = {
+const APITypes = {
     Stash: "stash",
     Clash: "clash"
 }
@@ -27,17 +47,52 @@ const OutputFormats = {
     Json: "json"
 }
 
+const Runtimes = {
+    Default: "default",
+    QuantumultX: "quan",
+    Stash: "stash"
+}
+
+var runtime = Runtimes.Default
+if (typeof $notify !== 'undefined' && typeof $task !== 'undefined') {
+    runtime = Runtimes.QuantumultX
+}
+if (typeof $environment !== 'undefined' && typeof $environment["stash-version"] !== 'undefined') {
+    runtime = Runtimes.Stash
+}
+
 var settings = {
     server_name: 'Stash iOS',
     output_format: OutputFormats.Html,
     api_addr: 'http://localhost:9090/connections',
     api_token: '',
-    api_type: ServerTypes.Stash
+    api_type: APITypes.Stash
 }
 
+// 配置参数: Stash从argument获取，Quantumult X从iCloud文件读取
 var parameter = 'Stash iOS,tile,http://localhost:9090/connections,api_token1234,stash'
-if (typeof $argument !== 'undefined' && $argument !== '') {
-    parameter = $argument
+if (runtime === Runtimes.Stash) {
+    if (typeof $argument !== 'undefined' && $argument !== '') {
+        parameter = $argument
+    }
+}
+else {
+    const config_file = 'RS0485/clash-insight.txt'
+    const read_bytes = $iCloud.readFile(config_file)
+
+    if (read_bytes === undefined) {
+        const write_bytes = new TextEncoder().encode('not configured')
+
+        if ($iCloud.writeFile(write_bytes, config_file)) {
+            console.log(`config file ${config_file} was created on icloud storage, please set parameters to this file.`)
+        } else {
+            console.log(`config file ${config_file} not found on icloud storage, failed to create a new one!`)
+        }
+
+        $done({})
+    } else {
+        parameter = new TextDecoder().decode(read_bytes).split('\n')[0];
+    }
 }
 const params = parameter.split(',')
 if (params.length >= 4) {
@@ -58,11 +113,15 @@ if (params.length >= 4) {
 
     // 最初发布的版本没有这个字段，采用下面的逻辑往前兼容
     if (params.length > 4) {
-        settings.api_type = params[4] == 'clash' ? ServerTypes.Clash : ServerTypes.Stash
+        settings.api_type = params[4] == 'clash' ? APITypes.Clash : APITypes.Stash
     }
     else {
-        settings.api_type = ServerTypes.Stash
+        settings.api_type = APITypes.Stash
     }
+}
+else {
+    console.log(`invalid parameter: ${parameter}`)
+    $done({})
 }
 
 function format_traffic(traffic_in_bytes) {
@@ -113,13 +172,13 @@ function convert_connection_object(src_connections, api_type) {
             rulePayload: src_connection.rulePayload,
             chains: src_connection.chains,
 
-            upload: api_type === ServerTypes.Stash ? src_connection.upload.total : src_connection.upload,
-            download: api_type === ServerTypes.Stash ? src_connection.download.total : src_connection.download,
-            dns_resolve_time: api_type === ServerTypes.Stash ?
+            upload: api_type === APITypes.Stash ? src_connection.upload.total : src_connection.upload,
+            download: api_type === APITypes.Stash ? src_connection.download.total : src_connection.download,
+            dns_resolve_time: api_type === APITypes.Stash ?
                 (src_connection.metadata.tracing.hasOwnProperty("dnsQuery") ? src_connection.metadata.tracing.dnsQuery : 0) : -1,
-            connect_time: api_type === ServerTypes.Stash ?
+            connect_time: api_type === APITypes.Stash ?
                 (src_connection.metadata.tracing.hasOwnProperty("connect") ? src_connection.metadata.tracing.connect : 0) : -1,
-            handshake_time: api_type === ServerTypes.Stash ?
+            handshake_time: api_type === APITypes.Stash ?
                 (src_connection.metadata.tracing.hasOwnProperty("handshake") ? src_connection.metadata.tracing.handshake : 0) : -1
         }
 
@@ -141,7 +200,7 @@ function perform_analysis(content, api_type) {
     var dns_resolved = []
     // 平均DNS解析时间
     var avg_resolve_time = -1
-    if (api_type === ServerTypes.Stash) {
+    if (api_type === APITypes.Stash) {
         dns_resolved = json_data.connections.filter(c => c.metadata.tracing.hasOwnProperty("dnsQuery"))
         if (dns_resolved.length > 0) {
             const sum = dns_resolved.reduce((acc, curr) => acc + curr.metadata.tracing.dnsQuery, 0)
@@ -210,7 +269,7 @@ function create_table_node(title, description, tips, rows) {
         node_content += `<p>${tips}</p>`
     }
 
-    node_content += '<table border="1" cellpadding="10">'
+    node_content += '<table border="1" cellpadding="5">'
     node_content += '<tbody>'
 
     rows.forEach(row => {
@@ -267,7 +326,7 @@ function generate_html(ana_result, settings) {
     const create_insight_node = (title, description, tips, connections, api_type) => {
         var insight_table = []
 
-        if (api_type === ServerTypes.Stash) {
+        if (api_type === APITypes.Stash) {
             insight_table.push([
                 '#',
                 'network',
@@ -298,7 +357,7 @@ function generate_html(ana_result, settings) {
             const upload = format_traffic(record.upload)
             const download = format_traffic(record.download)
 
-            if (api_type === ServerTypes.Stash) {
+            if (api_type === APITypes.Stash) {
                 insight_table.push([
                     idx,
                     `${record.network}`,
@@ -398,6 +457,7 @@ function generate_tile(ana_result) {
 function generate_json(ana_result, settings) {
     return {
         version: version,
+        runtime: runtime,
         server_name: settings.server_name,
         api_type: settings.api_type,
         api_addr: settings.api_addr,
@@ -405,44 +465,76 @@ function generate_json(ana_result, settings) {
     }
 }
 
-$httpClient.get(
-    {
-        url: settings.api_addr,
-    }, (error, response, data) => {
-        if (error) {
-            done({});
+function handle_response(data, runtime) {
+    try {
+        const json_data = perform_analysis(data, settings.api_type)
+
+        if (settings.output_format === OutputFormats.Json) {
+            const content = generate_json(json_data, settings)
+
+            $done({
+                status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Served-By': `Clash Insight v${version}`,
+                    'Report-To': 'https://github.com/RS0485/network-rules'
+                }, body: JSON.stringify(content)
+            });
+        }
+        else if (settings.output_format === OutputFormats.Html) {
+            const content = generate_html(json_data, settings)
+
+            $done({
+                status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
+                headers: {
+                    'Content-Type': 'text/html;charset=UTF-8',
+                    'Served-By': `Clash Insight v${version}`,
+                    'Report-To': 'https://github.com/RS0485/network-rules'
+                }, body: content
+            });
         }
         else {
-            const json_data = perform_analysis(data, settings.api_type)
+            const content = generate_tile(json_data)
 
-            if (settings.output_format === OutputFormats.Json) {
-                const content = generate_json(json_data, settings)
+            $done(content);
+        }
+    } catch (e) {
+        console.log(`handle response error: ${e}`)
+        $done({});
+    }
+}
 
-                $done({
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Served-By': `Clash Insight v${version}`,
-                        'Report-To': 'https://github.com/RS0485/network-rules'
-                    }, body: JSON.stringify(content)
-                });
-            }
-            else if (settings.output_format === OutputFormats.Html) {
-                const content = generate_html(json_data, settings)
-
-                $done({
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'text/html;charset=UTF-8',
-                        'Served-By': `Clash Insight v${version}`,
-                        'Report-To': 'https://github.com/RS0485/network-rules'
-                    }, body: content
-                });
-            }
-            else {
-                const content = generate_tile(json_data)
-
-                $done(content);
-            }
+if (runtime === Runtimes.Stash) {
+    $httpClient.get({
+        url: settings.api_addr,
+        timeout: 3000,
+        headers: { 'authorization': `Bearer ${settings.api_token}` },
+    }, (error, response, data) => {
+        if (error) {
+            console.log(`request error: ${error}`)
+            $done({})
+        }
+        else {
+            handle_response(data, runtime)
         }
     });
+}
+else if (runtime === Runtimes.QuantumultX) {
+    $task.fetch({
+        url: settings.api_addr,
+        timeout: 3000,
+        headers: { 'authorization': `Bearer ${settings.api_token}` }
+    }).then(response => {
+        handle_response(response.body, runtime)
+    }, reason => {
+        console.log(`fetch error: ${reason.error}`)
+        $done({})
+    })
+}
+else {
+    console.log(`unknown runtime ${runtime}`)
+
+    if (typeof $done !== 'undefined') {
+        $done({})
+    }
+}
