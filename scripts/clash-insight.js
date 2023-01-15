@@ -80,7 +80,7 @@ else {
     const read_bytes = $iCloud.readFile(config_file)
 
     if (read_bytes === undefined) {
-        const write_bytes = new TextEncoder().encode('not configured')
+        const write_bytes = new TextEncoder().encode('My Clash,html,http://myclash_address/connections,my_api_token,clash')
 
         if ($iCloud.writeFile(write_bytes, config_file)) {
             console.log(`config file ${config_file} was created on icloud storage, please set parameters to this file.`)
@@ -93,7 +93,9 @@ else {
         parameter = new TextDecoder().decode(read_bytes).split('\n')[0];
     }
 }
-const params = parameter.split(',')
+const params = parameter.split(',').map(function(item) {
+  return item.trim();
+})
 if (params.length >= 4) {
     settings.server_name = params[0]
 
