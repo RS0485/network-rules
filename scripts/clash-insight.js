@@ -3,7 +3,7 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.1.0
+ * @version 1.1.1
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Stash和Quantumult X调用
  *
  * 使用方式:
@@ -33,7 +33,7 @@
  * 
  */
 
-const version = '1.1.0'
+const version = '1.1.1'
 
 const APITypes = {
     Stash: "stash",
@@ -93,8 +93,8 @@ else {
         parameter = new TextDecoder().decode(read_bytes).split('\n')[0];
     }
 }
-const params = parameter.split(',').map(function(item) {
-  return item.trim();
+const params = parameter.split(',').map(function (item) {
+    return item.trim();
 })
 if (params.length >= 4) {
     settings.server_name = params[0]
@@ -199,7 +199,6 @@ function perform_analysis(content, api_type) {
     // DNS 分析
     // 触发DNS解析的记录
     var dns_resolved = []
-    // 平均DNS解析时间
     var avg_resolve_time = -1
     if (api_type === APITypes.Stash) {
         dns_resolved = json_data.connections.filter(c => c.metadata.tracing.hasOwnProperty("dnsQuery"))
@@ -227,6 +226,27 @@ function perform_analysis(content, api_type) {
     const network_http = json_data.connections.filter(c => (c.metadata.network === 'HTTP' || c.metadata.network === 'HTTPS'
         || c.metadata.network === 'http' || c.metadata.network === 'https'))
 
+    // TCP 分析: TCP+HTTPS
+    var avg_tcp_connect_time = -1
+    if (api_type == APITypes.Stash) {
+        const sum_tcp = network_tcp.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
+        const sum_http = network_http.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
+
+        if (network_tcp.length > 0 || network_http.length > 0) {
+            avg_tcp_connect_time = ((sum_tcp + sum_http) / (network_tcp.length + network_http.length)).toFixed(2)
+        }
+    }
+
+    // 代理连接分析
+    const proxied_connections = json_data.connections.filter(c => c.chains[0] !== 'DIRECT')
+    var avg_proxy_handshake_time = -1
+    if (api_type == APITypes.Stash) {
+        if (proxied_connections.length > 0) {
+            const sum = proxied_connections.reduce((acc, curr) => acc + (curr.metadata.tracing.hasOwnProperty("handshake") ? curr.metadata.tracing.handshake : 0), 0)
+            avg_proxy_handshake_time = (sum / proxied_connections.length).toFixed(2)
+        }
+    }
+
     // 最近10个请求
     json_data.connections.sort(function (a, b) {
         return new Date(b.start) - new Date(a.start)
@@ -244,13 +264,22 @@ function perform_analysis(content, api_type) {
             value: avg_resolve_time,
             unit: 'ms'
         },
+        avg_tcp_connect_time: {
+            value: avg_tcp_connect_time,
+            unit: 'ms'
+        },
+        avg_proxy_handshake_time: {
+            value: avg_proxy_handshake_time,
+            unit: 'ms'
+        },
         connections: {
-            recent_requests: convert_connection_object(recent_requests, api_type),
             redundant_dns: convert_connection_object(redundant_dns, api_type),
             final_matched: convert_connection_object(final_matched, api_type),
             network_tcp: convert_connection_object(network_tcp, api_type),
             network_udp: convert_connection_object(network_udp, api_type),
-            network_http: convert_connection_object(network_http, api_type)
+            network_http: convert_connection_object(network_http, api_type),
+            proxied_connections: convert_connection_object(proxied_connections, api_type),
+            recent_requests: convert_connection_object(recent_requests, api_type)
         }
     }
 }
@@ -307,19 +336,42 @@ function generate_html(ana_result, settings) {
     {
         var active_connection_table = []
 
-        active_connection_table.push([
-            '上传',
-            '下载',
-            '活跃连接',
-            'DNS解析',
-            '平均DNS解析时间'])
+        if (api_type === APITypes.Stash) {
+            active_connection_table.push([
+                '上传',
+                '下载',
+                '活跃连接',
+                'DNS解析',
+                '平均DNS解析时间',
+                'TCP连接数',
+                '平均TCP连接时间',
+                '代理连接数',
+                '平均代理握手时间'])
 
-        active_connection_table.push([
-            `${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}`,
-            `${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}`,
-            `${ana_result.active_connections}`,
-            `${ana_result.dns_resolved}`,
-            `${ana_result.avg_resolve_time.value} ${ana_result.avg_resolve_time.unit}`])
+            active_connection_table.push([
+                `${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}`,
+                `${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}`,
+                `${ana_result.active_connections}`,
+                `${ana_result.dns_resolved}`,
+                `${ana_result.avg_resolve_time.value} ${ana_result.avg_resolve_time.unit}`,
+                `${ana_result.network_tcp.length + ana_result.network.network_http.length}`,
+                `${ana_result.avg_tcp_connect_time.value} ${ana_result.avg_tcp_connect_time.unit}`,
+                `${ana_result.proxied_connections.length}`,
+                `${ana_result.avg_proxy_handshake_time.value} ${ana_result.avg_proxy_handshake_time.unit}`])
+        }
+        else {
+            active_connection_table.push([
+                '上传',
+                '下载',
+                '活跃连接',
+                'DNS解析'])
+
+            active_connection_table.push([
+                `${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}`,
+                `${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}`,
+                `${ana_result.active_connections}`,
+                `${ana_result.dns_resolved}`])
+        }
 
         html += create_table_node('统计信息', '', '', active_connection_table)
     }
@@ -477,7 +529,7 @@ function handle_response(data, runtime) {
                 status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Served-By': `Clash Insight v${version}`,
+                    'Served-By': `Clash Insight v${version} - ${runtime}`,
                     'Report-To': 'https://github.com/RS0485/network-rules'
                 }, body: JSON.stringify(content)
             });
@@ -489,7 +541,7 @@ function handle_response(data, runtime) {
                 status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
                 headers: {
                     'Content-Type': 'text/html;charset=UTF-8',
-                    'Served-By': `Clash Insight v${version}`,
+                    'Served-By': `Clash Insight v${version} - ${runtime}`,
                     'Report-To': 'https://github.com/RS0485/network-rules'
                 }, body: content
             });
