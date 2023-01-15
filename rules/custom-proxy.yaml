@@ -16,3 +16,5 @@ payload:
   - "+.ip.gs"
   - "+.wtfismyip.com"
   - "+.ipgeolocation.io"
+    # Misc
+  - "+.qiyoujiage.com"
