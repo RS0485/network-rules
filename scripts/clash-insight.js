@@ -19,9 +19,8 @@
  *        argument: 'My Clash,html,http://myclash_address/connections,,clash'
  * 
  *   > Quantumult X
- *     1. 新建一组重写配置，可以添加为rewrite_remote，也可以直接添加到Quantumult X配置文件，内容如下:
- *       hostname = clash.insight
- *       ^https?:\/\/clash.insight:9090\/html\/myclash$ url script-echo-response https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/clash-insight.js
+ *     1. 添加Clash Insight到remote_rewrite订阅:
+ *       https://raw.githubusercontent.com/RS0485/network-rules/main/rewrite/ClashInsight.qx.conf, tag=My Clash Insight, update-interval=259200, enabled=true
  *     2. 在Quantumult X的iCloud目录的配置文件 "RS0485/clash-insight.txt"设置参数(首次运行自动创建)，内容示例: My Clash,html,http://myclash_address/connections,,clash
  *     3. 提示：Quantumult X的script-echo-response重写不需要与服务器建立真实连接，所以配置里面的端口号可以不需要，这里只是为了与Stash保持一致
  * 
