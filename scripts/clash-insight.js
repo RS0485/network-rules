@@ -3,7 +3,7 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.1.1
+ * @version 1.1.2
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Stash和Quantumult X调用
  *
  * 使用方式:
@@ -33,7 +33,7 @@
  * 
  */
 
-const version = '1.1.1'
+const version = '1.1.2'
 
 const APITypes = {
     Stash: "stash",
@@ -228,7 +228,7 @@ function perform_analysis(content, api_type) {
 
     // TCP 分析: TCP+HTTPS
     var avg_tcp_connect_time = -1
-    if (api_type == APITypes.Stash) {
+    if (api_type === APITypes.Stash) {
         const sum_tcp = network_tcp.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
         const sum_http = network_http.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
 
@@ -240,7 +240,7 @@ function perform_analysis(content, api_type) {
     // 代理连接分析
     const proxied_connections = json_data.connections.filter(c => c.chains[0] !== 'DIRECT')
     var avg_proxy_handshake_time = -1
-    if (api_type == APITypes.Stash) {
+    if (api_type === APITypes.Stash) {
         if (proxied_connections.length > 0) {
             const sum = proxied_connections.reduce((acc, curr) => acc + (curr.metadata.tracing.hasOwnProperty("handshake") ? curr.metadata.tracing.handshake : 0), 0)
             avg_proxy_handshake_time = (sum / proxied_connections.length).toFixed(2)
@@ -336,7 +336,7 @@ function generate_html(ana_result, settings) {
     {
         var active_connection_table = []
 
-        if (api_type === APITypes.Stash) {
+        if (settings.api_type === APITypes.Stash) {
             active_connection_table.push([
                 '上传',
                 '下载',
@@ -354,9 +354,9 @@ function generate_html(ana_result, settings) {
                 `${ana_result.active_connections}`,
                 `${ana_result.dns_resolved}`,
                 `${ana_result.avg_resolve_time.value} ${ana_result.avg_resolve_time.unit}`,
-                `${ana_result.network_tcp.length + ana_result.network.network_http.length}`,
+                `${ana_result.connections.network_tcp.length + ana_result.connections.network_http.length}`,
                 `${ana_result.avg_tcp_connect_time.value} ${ana_result.avg_tcp_connect_time.unit}`,
-                `${ana_result.proxied_connections.length}`,
+                `${ana_result.connections.proxied_connections.length}`,
                 `${ana_result.avg_proxy_handshake_time.value} ${ana_result.avg_proxy_handshake_time.unit}`])
         }
         else {
