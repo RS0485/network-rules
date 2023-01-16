@@ -199,28 +199,27 @@ function convert_connection_object(src_connections, api_type) {
 function perform_analysis(content, api_type) {
     const json_data = JSON.parse(content)
 
-    json_data.connections.sort(function (a, b) {
-        return new Date(b.start) - new Date(a.start)
-    })
-
-    // 最近10个请求
-    const recent_requests = json_data.connections.slice(0, 10)
-
     // 排除本地连接
     json_data.connections = json_data.connections.filter(function (con) {
         return con.metadata.host !== 'localhost' && con.metadata.host !== 'clash.insight' && con.metadata.destinationIP !== '127.0.0.1'
+    })
+    json_data.connections.sort(function (a, b) {
+        return new Date(b.start) - new Date(a.start)
     })
 
     const active_connections = json_data.connections.length
     const upload_traffic = format_traffic(json_data.uploadTotal)
     const download_traffic = format_traffic(json_data.downloadTotal)
 
+    // 最近10个请求
+    const recent_requests = json_data.connections.slice(0, 10)
+
+    // 拦截的请求
     const rejected_requests = json_data.connections.filter(c => c.chains[0] === 'REJECT')
 
     // 以下的分析数据不包含REJECT
     json_data.connections = json_data.connections.filter(c => c.chains[0] !== 'REJECT')
     
-
     // 触发DNS解析的记录
     var dns_resolved = []
     var avg_resolve_time = -1
