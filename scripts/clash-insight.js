@@ -32,10 +32,11 @@
  * 
  * Change Logs:
  *   - v1.1.3: 添加异常DNS解析时间分析
+ *   - v1.1.4: 分析之前过滤REJECT和本地连接
  * 
  */
 
-const version = '1.1.3'
+const version = '1.1.4'
 
 const APITypes = {
     Stash: "stash",
@@ -198,11 +199,28 @@ function convert_connection_object(src_connections, api_type) {
 function perform_analysis(content, api_type) {
     const json_data = JSON.parse(content)
 
+    json_data.connections.sort(function (a, b) {
+        return new Date(b.start) - new Date(a.start)
+    })
+
+    // 最近10个请求
+    const recent_requests = json_data.connections.slice(0, 10)
+
+    // 排除本地连接
+    json_data.connections = json_data.connections.filter(function (con) {
+        return con.metadata.host !== 'localhost' && con.metadata.host !== 'clash.insight' && con.metadata.destinationIP !== '127.0.0.1'
+    })
+
     const active_connections = json_data.connections.length
     const upload_traffic = format_traffic(json_data.uploadTotal)
     const download_traffic = format_traffic(json_data.downloadTotal)
 
-    // DNS 分析
+    const rejected_requests = json_data.connections.filter(c => c.chains[0] === 'REJECT')
+
+    // 以下的分析数据不包含REJECT
+    json_data.connections = json_data.connections.filter(c => c.chains[0] !== 'REJECT')
+    
+
     // 触发DNS解析的记录
     var dns_resolved = []
     var avg_resolve_time = -1
@@ -255,14 +273,6 @@ function perform_analysis(content, api_type) {
         avg_proxy_handshake_time = (sum / proxied_connections.length).toFixed(2)
     }
 
-    // 最近10个请求
-    json_data.connections.sort(function (a, b) {
-        return new Date(b.start) - new Date(a.start)
-    })
-    const recent_requests = json_data.connections.filter(function (con) {
-        return con.metadata.host !== 'localhost' && con.metadata.host !== 'clash.insight'
-    }).slice(0, 10)
-
     return {
         active_connections: active_connections,
         upload_traffic: upload_traffic,
@@ -284,6 +294,7 @@ function perform_analysis(content, api_type) {
             redundant_dns: convert_connection_object(redundant_dns, api_type),
             final_matched: convert_connection_object(final_matched, api_type),
             abnormal_dns_resolved: convert_connection_object(abnormal_dns_resolved, api_type),
+            rejected_requests: convert_connection_object(rejected_requests, api_type),
             network_tcp: convert_connection_object(network_tcp, api_type),
             network_udp: convert_connection_object(network_udp, api_type),
             network_http: convert_connection_object(network_http, api_type),
@@ -484,11 +495,13 @@ function generate_html(ana_result, settings) {
         var active_connection_table = []
 
         active_connection_table.push([
+            'REJECT',
             'TCP',
             'UDP',
             'HTTP(S)'])
 
         active_connection_table.push([
+            `${ana_result.connections.rejected_requests.length}`,
             `${ana_result.connections.network_tcp.length}`,
             `${ana_result.connections.network_udp.length}`,
             `${ana_result.connections.network_http.length}`])
