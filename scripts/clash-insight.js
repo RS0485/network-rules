@@ -22,7 +22,6 @@
  *     1. 添加Clash Insight到remote_rewrite订阅:
  *       https://raw.githubusercontent.com/RS0485/network-rules/main/rewrite/ClashInsight.qx.conf, tag=My Clash Insight, update-interval=259200, enabled=true
  *     2. 在Quantumult X的iCloud目录的配置文件 "RS0485/clash-insight.txt"设置参数(首次运行自动创建)，内容示例: My Clash,html,http://myclash_address/connections,,clash
- *     3. 提示：Quantumult X的script-echo-response重写不需要与服务器建立真实连接，所以配置里面的端口号可以不需要，这里只是为了与Stash保持一致
  * 
  * 脚本参数格式: name,output_format,api_addr,api_token,api_type
  *   - name:            Clash 客户端的名称
