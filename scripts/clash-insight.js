@@ -3,7 +3,7 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.1.2
+ * @version 1.1.3
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Stash和Quantumult X调用
  *
  * 使用方式:
@@ -23,16 +23,19 @@
  *       https://raw.githubusercontent.com/RS0485/network-rules/main/rewrite/ClashInsight.qx.conf, tag=My Clash Insight, update-interval=259200, enabled=true
  *     2. 在Quantumult X的iCloud目录的配置文件 "RS0485/clash-insight.txt"设置参数(首次运行自动创建)，内容示例: My Clash,html,http://myclash_address/connections,,clash
  * 
- * 脚本参数格式: name,output_format,api_addr,api_token,api_type
+ * 参数格式: name,output_format,api_addr,api_token,api_type
  *   - name:            Clash 客户端的名称
  *   - output_format:   指定脚本执行后的输出, tile-Stash小组件 html-html网页 json-json数据用于二次开发
  *   - api_addr:        Clash API地址
  *   - api_token:       API token
  *   - api_type:        Clash 客户端的类型, 支持 stash 或 clash
  * 
+ * Change Logs:
+ *   - v1.1.3: 添加异常DNS解析时间分析
+ * 
  */
 
-const version = '1.1.2'
+const version = '1.1.3'
 
 const APITypes = {
     Stash: "stash",
@@ -156,6 +159,10 @@ function format_traffic(traffic_in_bytes) {
 }
 
 function convert_connection_object(src_connections, api_type) {
+    if (typeof src_connections === 'undefined') {
+        return undefined
+    }
+
     // 将Stash/Clash 对象转换成通用对象
     common_connections = []
 
@@ -215,35 +222,37 @@ function perform_analysis(content, api_type) {
     // 数量越少越好，当数量比较多时建议对规则进行优化
     const redundant_dns = dns_resolved.filter(c => c.chains[0] !== 'DIRECT')
 
+    // 异常的DNS解析时间：> 120ms
+    var abnormal_dns_resolved //= []
+    if (api_type === APITypes.Stash) {
+        abnormal_dns_resolved = dns_resolved.filter(c => c.metadata.tracing.dnsQuery > 120)
+    }
+
     // 未匹配规则的记录
     // 数量越多说明规则越不完善
     const final_matched = json_data.connections.filter(c => (c.rule === 'MATCH' || c.rule === 'Match'))
 
-    // 网络类型分析
+    // 网络类型分类
     const network_tcp = json_data.connections.filter(c => (c.metadata.network === 'TCP' || c.metadata.network === 'tcp'))
     const network_udp = json_data.connections.filter(c => (c.metadata.network === 'UDP' || c.metadata.network === 'udp'))
     const network_http = json_data.connections.filter(c => (c.metadata.network === 'HTTP' || c.metadata.network === 'HTTPS'
         || c.metadata.network === 'http' || c.metadata.network === 'https'))
 
-    // TCP 分析: TCP+HTTPS
+    // 平均TCP 连接时间分析: TCP+HTTPS
     var avg_tcp_connect_time = -1
-    if (api_type === APITypes.Stash) {
+    if (api_type === APITypes.Stash && (network_tcp.length > 0 || network_http.length > 0)) {
         const sum_tcp = network_tcp.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
         const sum_http = network_http.reduce((acc, curr) => acc + curr.metadata.tracing.connect, 0)
 
-        if (network_tcp.length > 0 || network_http.length > 0) {
-            avg_tcp_connect_time = ((sum_tcp + sum_http) / (network_tcp.length + network_http.length)).toFixed(2)
-        }
+        avg_tcp_connect_time = ((sum_tcp + sum_http) / (network_tcp.length + network_http.length)).toFixed(2)
     }
 
-    // 代理连接分析
+    // 平均代理握手时间分析
     const proxied_connections = json_data.connections.filter(c => c.chains[0] !== 'DIRECT')
     var avg_proxy_handshake_time = -1
-    if (api_type === APITypes.Stash) {
-        if (proxied_connections.length > 0) {
-            const sum = proxied_connections.reduce((acc, curr) => acc + (curr.metadata.tracing.hasOwnProperty("handshake") ? curr.metadata.tracing.handshake : 0), 0)
-            avg_proxy_handshake_time = (sum / proxied_connections.length).toFixed(2)
-        }
+    if (api_type === APITypes.Stash && proxied_connections.length > 0) {
+        const sum = proxied_connections.reduce((acc, curr) => acc + (curr.metadata.tracing.hasOwnProperty("handshake") ? curr.metadata.tracing.handshake : 0), 0)
+        avg_proxy_handshake_time = (sum / proxied_connections.length).toFixed(2)
     }
 
     // 最近10个请求
@@ -274,6 +283,7 @@ function perform_analysis(content, api_type) {
         connections: {
             redundant_dns: convert_connection_object(redundant_dns, api_type),
             final_matched: convert_connection_object(final_matched, api_type),
+            abnormal_dns_resolved: convert_connection_object(abnormal_dns_resolved, api_type),
             network_tcp: convert_connection_object(network_tcp, api_type),
             network_udp: convert_connection_object(network_udp, api_type),
             network_http: convert_connection_object(network_http, api_type),
@@ -454,6 +464,14 @@ function generate_html(ana_result, settings) {
             ana_result.connections.redundant_dns, settings.api_type)
     }
 
+    if (typeof ana_result.connections.abnormal_dns_resolved !== 'undefined') {
+        html += create_insight_node(
+            '异常的DNS解析时间',
+            '以下域名的DNS的解析时间异常(超过120ms)，可能导致首次连接速度较慢。',
+            '如果异常数量较多，建议更换成更快的DNS服务器。',
+            ana_result.connections.abnormal_dns_resolved, settings.api_type)
+    }
+
     if (typeof ana_result.connections.final_matched !== 'undefined') {
         html += create_insight_node(
             '未命中规则',
@@ -528,7 +546,7 @@ function handle_response(data, runtime) {
                 status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Served-By': `Clash Insight v${version} - ${runtime}`,
+                    'Served-By': `Clash Insight v${version}`,
                     'Report-To': 'https://github.com/RS0485/network-rules'
                 }, body: JSON.stringify(content)
             });
@@ -540,7 +558,7 @@ function handle_response(data, runtime) {
                 status: runtime === Runtimes.Stash ? 200 : 'HTTP/1.1 200 OK',
                 headers: {
                     'Content-Type': 'text/html;charset=UTF-8',
-                    'Served-By': `Clash Insight v${version} - ${runtime}`,
+                    'Served-By': `Clash Insight v${version}`,
                     'Report-To': 'https://github.com/RS0485/network-rules'
                 }, body: content
             });
