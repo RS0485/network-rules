@@ -3,13 +3,13 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.2.0
+ * @version 1.2.1
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Node.js、Stash 和 Quantumult X 调用
  * @readme https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/clash-insight.md
  * 
  */
 
-const version = '1.2.0'
+const version = '1.2.1'
 
 const APITypes = {
     Stash: "stash",
@@ -172,7 +172,7 @@ class ConnectionInsight {
             active_connection_count: active_connection_count,
             upload_traffic: upload_traffic,
             download_traffic: download_traffic,
-            recent_requests: this.#convert_connections(recent_requests),
+            recent_requests: this.#convert_connections(recent_requests, api_type),
 
             policy: policy,
             dns: dns,
@@ -297,8 +297,8 @@ class ConnectionInsight {
                 value: avg_resolve_time,
                 unit: 'ms'
             },
-            redundant_dns: this.#convert_connections(redundant_dns),
-            abnormal_dns_resolved: this.#convert_connections(abnormal_dns_resolved)
+            redundant_dns: this.#convert_connections(redundant_dns, api_type),
+            abnormal_dns_resolved: this.#convert_connections(abnormal_dns_resolved, api_type)
         }
     }
 
@@ -333,9 +333,9 @@ class ConnectionInsight {
                 unit: 'ms'
             },
 
-            network_tcp: this.#convert_connections(network_tcp),
-            network_udp: this.#convert_connections(network_udp),
-            network_http: this.#convert_connections(network_http),
+            network_tcp: this.#convert_connections(network_tcp, api_type),
+            network_udp: this.#convert_connections(network_udp, api_type),
+            network_http: this.#convert_connections(network_http, api_type),
         }
     }
 
@@ -372,7 +372,7 @@ class ConnectionInsight {
             },
             reject_count: rejected_requests.length,
 
-            final_matched: this.#convert_connections(final_matched)
+            final_matched: this.#convert_connections(final_matched, api_type)
         }
     }
 }
@@ -386,8 +386,8 @@ class ReportGenerator {
         const body = {
             title: `${settings.server_name} Insight`,
             content: `↑ ${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}   ↓ ${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}
-活动连接: ${ana_result.active_connection_count}  UDP: ${ana_result.network.network_udp.length}
-冗余DNS: ${ana_result.dns.redundant_dns.length}  异常解析: ${ana_result.dns.abnormal_dns_resolved.length}`,
+活动连接: ${ana_result.active_connection_count}  UDP: ${ana_result.network.network_udp.length}  MATCH: ${ana_result.policy.final_matched.length}
+冗余DNS: ${ana_result.dns.redundant_dns.length}  解析时间异常: ${ana_result.dns.abnormal_dns_resolved.length}`,
             icon: "arrow.up.arrow.down.circle.fill"
         }
 
