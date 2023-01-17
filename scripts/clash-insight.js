@@ -387,7 +387,7 @@ class ReportGenerator {
             title: `${settings.server_name} Insight`,
             content: `↑ ${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}   ↓ ${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}
 连接: ${ana_result.active_connection_count}  UDP: ${ana_result.network.network_udp.length}  MATCH: ${ana_result.policy.final_matched.length}
-冗余DNS: ${ana_result.dns.redundant_dns.length}  解析时间异常: ${ana_result.dns.abnormal_dns_resolved.length}`,
+冗余DNS: ${ana_result.dns.redundant_dns.length}  解析缓慢: ${ana_result.dns.abnormal_dns_resolved.length}`,
             icon: "arrow.up.arrow.down.circle.fill"
         }
 
@@ -429,6 +429,7 @@ class ReportGenerator {
                     '上传',
                     '下载',
                     '活跃连接',
+                    'REJECT',
                     'DNS解析',
                     '平均DNS解析时间',
                     'TCP连接数',
@@ -440,6 +441,7 @@ class ReportGenerator {
                     `${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}`,
                     `${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}`,
                     `${ana_result.active_connection_count}`,
+                    `${ana_result.policy.reject_count}`,
                     `${ana_result.dns.dns_resolve_count}`,
                     `${ana_result.dns.avg_resolve_time.value} ${ana_result.dns.avg_resolve_time.unit}`,
                     `${ana_result.network.tcp_connection_count}`,
@@ -500,13 +502,11 @@ class ReportGenerator {
             var active_connection_table = []
 
             active_connection_table.push([
-                'REJECT',
                 'TCP',
                 'UDP',
                 'HTTP(S)'])
 
             active_connection_table.push([
-                `${ana_result.policy.reject_count}`,
                 `${ana_result.network.network_tcp.length}`,
                 `${ana_result.network.network_udp.length}`,
                 `${ana_result.network.network_http.length}`])
