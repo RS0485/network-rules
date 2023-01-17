@@ -386,7 +386,7 @@ class ReportGenerator {
         const body = {
             title: `${settings.server_name} Insight`,
             content: `↑ ${ana_result.upload_traffic.value} ${ana_result.upload_traffic.unit}   ↓ ${ana_result.download_traffic.value} ${ana_result.download_traffic.unit}
-活动连接: ${ana_result.active_connection_count}  UDP: ${ana_result.network.network_udp.length}  MATCH: ${ana_result.policy.final_matched.length}
+连接: ${ana_result.active_connection_count}  UDP: ${ana_result.network.network_udp.length}  MATCH: ${ana_result.policy.final_matched.length}
 冗余DNS: ${ana_result.dns.redundant_dns.length}  解析时间异常: ${ana_result.dns.abnormal_dns_resolved.length}`,
             icon: "arrow.up.arrow.down.circle.fill"
         }
