@@ -5,7 +5,6 @@
 payload:
   - "+.sourceforge.net"
   - "+.v2ex.com"
-  - "+.timopartl.com"
   - "+.rarbg.to"
   - "+.apkmirror.com"
   - "+.apkpure.com"
@@ -16,5 +15,10 @@ payload:
   - "+.ip.gs"
   - "+.wtfismyip.com"
   - "+.ipgeolocation.io"
+  # 在线视频
+  - “+.mudvod.tv"
+  - "+.plex.tv"
+  - "+.yhdmp.live"
+  - "+.xiaoheimi.net"
     # Misc
   - "+.qiyoujiage.com"
