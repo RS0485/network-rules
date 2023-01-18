@@ -1,10 +1,9 @@
 /**
- * @fileoverview This script is use to convert resource to the format of Quantumult X.
+ * @fileoverview JS Script to convert the resource to the format of Quantumult X.
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules/tree/main/resource
- * @version 1.0.8
- * @doc https://github.com/RS0485/network-rules/blob/main/resource/README.md
+ * @version 1.0.7
  *
  * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
@@ -26,24 +25,12 @@
 
 const Runtimes = {
     Default: "default",
-    QuantumultX: "quantumultx",
-    Stash: "stash",
-    NodeJS: "nodejs"
+    QuantumultX: "quan"
 }
 
 var runtime = Runtimes.Default
-
-if (typeof $notify !== 'undefined' && typeof $task !== 'undefined') {
+if (typeof $notify != 'undefined') {
     runtime = Runtimes.QuantumultX
-}
-else if (typeof $environment !== 'undefined' && typeof $environment["stash-version"] !== 'undefined') {
-    runtime = Runtimes.Stash
-}
-else if (typeof process !== 'undefined' && typeof module !== 'undefined') {
-    runtime = Runtimes.NodeJS
-}
-else {
-    runtime = Runtimes.Default
 }
 
 function notify(msg) {
