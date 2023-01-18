@@ -17,4 +17,4 @@ Clash(Stash)/Quantumult X rules and scripts
 - [直连+代理IP地址信息](https://github.com/RS0485/network-rules/tree/main/rewrite/IPGeolocation.stoverride)
 
 ## 备注
-- 若修改或引用此REPO的资源，请保留原始链接
+- 若修改或引用此REPO的资源，请保留原始链接以便获得更新和修复

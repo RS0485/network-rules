@@ -1,9 +1,10 @@
 /**
- * @fileoverview JS Script to convert the resource to the format of Quantumult X.
+ * @fileoverview This script is use to convert resource to the format of Quantumult X.
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules/tree/main/resource
- * @version 1.0.7
+ * @version 1.0.8
+ * @doc https://github.com/RS0485/network-rules/blob/main/resource/README.md
  *
  * 资源解析器的使用方式:
  *     格式: [订阅URL]?[参数列表],opt-parser=true...
