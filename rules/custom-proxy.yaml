@@ -20,5 +20,9 @@ payload:
   - "+.plex.tv"
   - "+.yhdmp.live"
   - "+.xiaoheimi.net"
+  # Oracle
+  - "+.oracle.com"
+  - "+.oraclecloud.com"
+  - "+.oracleinfinity.io"
     # Misc
   - "+.qiyoujiage.com"
