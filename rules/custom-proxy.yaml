@@ -3,9 +3,7 @@
 # 创建时间: 2022/12/7 下午7:00:05
 
 payload:
-  - "+.sourceforge.net"
   - "+.v2ex.com"
-  - "+.rarbg.to"
   - "+.apkmirror.com"
   - "+.apkpure.com"
   - "+.cnbeta.com.tw"
@@ -20,10 +18,6 @@ payload:
   - "+.plex.tv"
   - "+.yhdmp.com"
   - "+.xiaoheimi.net"
-  # Oracle
-  - "+.oracle.com"
-  - "+.oraclecloud.com"
-  - "+.oracleinfinity.io"
     # Misc
   - "+.qiyoujiage.com"
   - "+.googleapis-cn.com"
