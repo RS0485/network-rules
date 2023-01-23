@@ -110,6 +110,37 @@ async function mergeRulesets(rulesets) {
     return new Response(content, init);
 }
 
+function format_traffic(traffic_in_bytes) {
+    const KB = 1000
+    const MB = 1000 * 1000
+    const GB = 1000 * 1000 * 1000
+
+    var friendly_traffic = 0
+    var friendly_unit = 'B'
+
+    if (traffic_in_bytes < KB) {
+        friendly_traffic = traffic_in_bytes
+        friendly_unit = 'B';
+    }
+    else if (traffic_in_bytes >= KB && traffic_in_bytes < MB) {
+        friendly_traffic = traffic_in_bytes / KB
+        friendly_unit = 'KB';
+    }
+    else if (traffic_in_bytes >= MB && traffic_in_bytes < GB) {
+        friendly_traffic = traffic_in_bytes / MB
+        friendly_unit = 'MB';
+    }
+    else {
+        friendly_traffic = traffic_in_bytes / GB
+        friendly_unit = 'GB';
+    }
+
+    return {
+        value: friendly_traffic.toFixed(2),
+        unit: friendly_unit
+    }
+}
+
 /**
  * Generate a webpage from github file list
  * @returns 
@@ -148,7 +179,8 @@ async function generateRuleList(hostname) {
 <body>`
 
     rulesets.tree.forEach(ruleset => {
-        html += `<a title="${ruleset.path}" href="https://${hostname}/gh/RS0485/V2rayDomains2Clash/generated/${ruleset.path}">${ruleset.path}</a> &emsp; size=${ruleset.size}<br>`
+        const size = format_traffic(ruleset.size)
+        html += `<a title="${ruleset.path}" href="https://${hostname}/gh/RS0485/V2rayDomains2Clash/generated/${ruleset.path}">${ruleset.path}</a> &emsp;${size.value} ${size.unit}<br>`
     })
 
     html += '</body> </html>'
