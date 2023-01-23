@@ -3,9 +3,8 @@
 # 创建时间: 2022/12/7 下午7:00:05
 
 payload:
-  - "+.sourceforge.net"
+  - "+.solidot.org"
   - "+.v2ex.com"
-  - "+.rarbg.to"
   - "+.apkmirror.com"
   - "+.apkpure.com"
   - "+.cnbeta.com.tw"
@@ -16,13 +15,10 @@ payload:
   - "+.wtfismyip.com"
   - "+.ipgeolocation.io"
   # 在线视频
-  - “+.mudvod.tv"
+  - "+.mudvod.tv"
   - "+.plex.tv"
-  - "+.yhdmp.live"
+  - "+.yhdmp.com"
   - "+.xiaoheimi.net"
-  # Oracle
-  - "+.oracle.com"
-  - "+.oraclecloud.com"
-  - "+.oracleinfinity.io"
     # Misc
   - "+.qiyoujiage.com"
+  - "+.googleapis-cn.com"
