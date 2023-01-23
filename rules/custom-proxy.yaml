@@ -3,6 +3,7 @@
 # 创建时间: 2022/12/7 下午7:00:05
 
 payload:
+  - "+.solidot.org"
   - "+.v2ex.com"
   - "+.apkmirror.com"
   - "+.apkpure.com"
