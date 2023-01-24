@@ -14,7 +14,6 @@ http:
 
     - 'mp.weixin.qq.com'
     - 'szextshort.weixin.qq.com'
-    - 'tiasdk.app.wechat.com'
 
     - 'gw.alicdn.com'
     - 'heic.alicdn.com'
@@ -34,7 +33,6 @@ http:
     # 微信
     - '^https?:\/\/mp\.weixin\.qq\.com\/(s|mp)\/(ad_|advertisement|getappmsgad|report|appmsgreport|appmsgpicreport) - reject'
     - '^https?:\/\/szextshort\.weixin\.qq\.com\/cgi-bin\/mmoc-bin\/ad\/ - reject-img'
-    - '^https?:\/\/tiasdk\.app\.wechat\.com\/retrieval\/getAdInfo - reject'
 
     # 淘宝
     - '^https?:\/\/(gw|heic)\.alicdn\.com\/\w{2}s\/.+\.jpg_(9\d{2}|\d{4}) - reject'

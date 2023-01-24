@@ -10,9 +10,6 @@ payload:
   - "+.cnbeta.com.tw"
   # IP-API
   - "+.ipinfo.io"
-  - "+.ip.sb"
-  - "+.ip.gs"
-  - "+.wtfismyip.com"
   - "+.ipgeolocation.io"
   # 在线视频
   - "+.mudvod.tv"
