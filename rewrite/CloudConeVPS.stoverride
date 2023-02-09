@@ -1,0 +1,18 @@
+name: CloudCone VPS 信息面板
+desc: >-
+  查询并显示CloudCone VPS 的信息
+  CloudCone不提供VPS API，需在Cloudflare Workers上部署此API后端: https://github.com/RS0485/CloudCone-API
+  运行参数通过脚本进行设置：$persistentStore.write('{ "email": "rs0485@example.com", "password": "hellopass", "vpsid": "12345", "api_addr": "https://cloudcone-api.example.workers.dev" }', "cloudcone-vps-options"); $done({settings: "ok"})
+
+tiles:
+  - name: cloudcone-vps
+    interval: 3600
+    title: 'CloudCone VPS'
+    content: '刷新中...'
+    icon: 'https://app.cloudcone.com/assets/img/logo.png'
+    backgroundColor: '5e35b1'
+
+script-providers:
+  cloudcone-vps:
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/cloudcone-vps.js
+    interval: 86400
