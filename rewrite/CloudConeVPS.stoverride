@@ -14,5 +14,5 @@ tiles:
 
 script-providers:
   cloudcone-vps:
-    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/cloudcone-vps01.js
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/cloudcone-vps.js
     interval: 86400
