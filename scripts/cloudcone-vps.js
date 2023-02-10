@@ -70,9 +70,11 @@ async function request_web(url, headers) {
 
         // Store cookies
         var new_cookies = api_call.response.headers['Set-Cookie']
-        if (typeof new_cookies !== 'undefined' && new_cookies !== '') {
+        if (typeof new_cookies !== 'undefined' && new_cookies !== null && new_cookies !== '') {
+            console.log(`New cookies received: ${new_cookies}`)
+
+            new_cookies = new_cookies.split(';')[0]
             $persistentStore.write(new_cookies, 'cloudcone-vps-cookies')
-            //console.log(`Store new cookies: ${new_cookies}`)
         }
 
         json = JSON.parse(api_call.data)
