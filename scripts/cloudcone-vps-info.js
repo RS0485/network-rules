@@ -3,13 +3,14 @@
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.1
+ * @version 1.0.2
  * @note 
  *   1. 使用前需自行部署CloudCone API：https://github.com/RS0485/CloudCone-API
  *   2. 运行参数通过脚本进行设置：$persistentStore.write('{ "email": "rs0485@example.com", "password": "hellopass", "vpsid": "12345", "api_addr": "https://cloudcone-api.example.workers.dev" }', "cloudcone-vps-options"); $done({settings: "ok"})
  * 
  * Change Logs:
  *   - v1.0.1  Store cookie in persistent store to speedup API call
+ *   - v1.0.2  Set parameters by http headers instead of query parameters
  * 
  */
 
@@ -59,9 +60,13 @@ async function request_web(url, headers) {
             cookies = ''
         }
 
-        const api_call = await request_web(`${options.api_addr}/cc-api/v1.0/get-info?vpsid=${options.vpsid}&email=${options.email}&password=${options.password}&cookie=${cookies}`, {
+        const api_call = await request_web(`${options.api_addr}/cc-api/v1.0/get-info`, {
             'referer': 'https://app.cloudcone.com/',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            'x-vpsid': `${options.vpsid}`,
+            'x-email': `${options.email}`,
+            'x-password': `${options.password}`,
+            'x-cookie': `${cookies.split(';')[0]}`
         });
 
         if (api_call.error || api_call.response.status !== 200) {
@@ -75,7 +80,6 @@ async function request_web(url, headers) {
         if (typeof new_cookies !== 'undefined' && new_cookies !== null && new_cookies !== '') {
             console.log(`New cookies received: ${new_cookies}`)
 
-            new_cookies = new_cookies.split(';')[0].replace('=', '@')
             $persistentStore.write(new_cookies, 'cloudcone-vps-cookies')
         }
 
