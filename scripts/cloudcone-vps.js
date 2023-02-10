@@ -55,11 +55,13 @@ async function request_web(url, headers) {
 (async () => {
     try {
         const cookies = $persistentStore.read('cloudcone-vps-cookies')
+        if (typeof cookies === 'undefined') {
+            cookies = ''
+        }
 
-        const api_call = await request_web(`${options.api_addr}/cc-api/v1.0/get-info?vpsid=${options.vpsid}&email=${options.email}&password=${options.password}`, {
+        const api_call = await request_web(`${options.api_addr}/cc-api/v1.0/get-info?vpsid=${options.vpsid}&email=${options.email}&password=${options.password}&cookie=${cookies}`, {
             'referer': 'https://app.cloudcone.com/',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-            'cookies': (typeof cookies !== 'undefined' && cookies !== '' ? cookies : '')
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
         });
 
         if (api_call.error || api_call.response.status !== 200) {
@@ -73,7 +75,7 @@ async function request_web(url, headers) {
         if (typeof new_cookies !== 'undefined' && new_cookies !== null && new_cookies !== '') {
             console.log(`New cookies received: ${new_cookies}`)
 
-            new_cookies = new_cookies.split(';')[0]
+            new_cookies = new_cookies.split(';')[0].replace('=', '@')
             $persistentStore.write(new_cookies, 'cloudcone-vps-cookies')
         }
 
