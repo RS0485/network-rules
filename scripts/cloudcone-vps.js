@@ -90,12 +90,10 @@ async function request_web(url, headers) {
             console.log(`Failed to login with user cookies: ${json.debug_info.user_cookies}, re-login success, new cookies is set: ${new_cookies}`)
         }
 
-        var used_precent = Math.round(json.usage.bandwidth.used.value / json.usage.bandwidth.total.value * 10000) / 100 + "%";
-
         var title = `${json.info.name.substring(0, 32).toUpperCase()} - ${json.info.status}`
         var content = `${json.info.description}`
         content += `\n${json.info.node} @ ${json.info.dc_location}`
-        content += `\n${json.usage.bandwidth.used.value} ${json.usage.bandwidth.used.unit} of ${json.usage.bandwidth.total.value} ${json.usage.bandwidth.total.unit}/${json.usage.bandwidth.cycle} ${used_precent}`
+        content += `\n${json.usage.bandwidth.used.value} ${json.usage.bandwidth.used.unit} of ${json.usage.bandwidth.total.value} ${json.usage.bandwidth.total.unit}/${json.usage.bandwidth.cycle}`
 
         body = {
             title: title,
