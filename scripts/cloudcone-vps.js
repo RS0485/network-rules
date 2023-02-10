@@ -82,6 +82,10 @@ async function request_web(url, headers) {
             })
         }
 
+        if (typeof json.debug_info !== 'undefined' && json.debug_info.re_login === true) {
+            console.log(`Failed to login with user cookies: ${json.debug_info.user_cookies}, re-login success, new cookies is set: ${new_cookies}`)
+        }
+
         var used_precent = Math.round(json.usage.bandwidth.used.value / json.usage.bandwidth.total.value * 10000) / 100 + "%";
 
         var title = `${json.info.name.substring(0, 32).toUpperCase()} - ${json.info.status}`
