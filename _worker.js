@@ -269,6 +269,13 @@ export default {
         else if (request_url.pathname.startsWith('/list/')) {
             return generateRuleList(request_url.hostname);
         }
+        else if (request_url.pathname.startsWith('/robots.txt')) {
+            return new Response('User-agent: *\nDisallow: /', {
+                headers: {
+                    'content-type': 'text/plain; charset=UTF-8',
+                },
+            })
+        }
         else {
             return new Response(`<!DOCTYPE html>
             <body>
@@ -279,7 +286,7 @@ export default {
                 headers: {
                     'content-type': 'text/html;charset=UTF-8',
                 },
-            });
+            })
         }
     },
 }
