@@ -15,8 +15,8 @@ Clash(Stash)/Quantumult X rules and scripts
 - [直连+代理IP地址信息](https://github.com/RS0485/network-rules/tree/main/rewrite/IPGeolocation.stoverride)
 - [CloudCone VPS 信息面板](https://github.com/RS0485/network-rules/tree/main/rewrite/CloudConeVPS.stoverride)
 
-### Cloudflare Workers
- - [分流规则预处理服务](https://github.com/RS0485/network-rules/tree/main/cf-workers/ruleset-handler.md)
+### Cloudflare Pages/Workers
+ - [分流规则预处理服务](https://github.com/RS0485/network-rules/tree/main/_worker.js.md)
 
 ## 备注
 - 若修改或引用此REPO的资源，请保留原始链接以便获得更新和修复

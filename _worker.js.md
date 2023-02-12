@@ -1,17 +1,18 @@
-# ruleset-handler.js
-Clash 订阅规则预处理脚本(规则合并、github反代、规则清单网页)，运行于 `Cloudflare Workers`。
+# 说明
+Clash 订阅规则预处理服务(规则合并、github反代、规则清单网页)，运行于 `Cloudflare Pages`。
+
+## 部署
+1. Fork 此项目，根据需要修改 `_worker.js` 的内容
+2. 将 `GitHub` 账户关联到 `Cloudflare`，使用 `Connect to Git` 的方式新建一个 `Cloudflare Pages` 项目，然后选择Fork的Repo
+3. 部署完成后可以通过浏览器访问 `Cloudflare Pages`的域名链接 `xx.pages.dev`
+4. 建议绑定自定义域名，避免 `pages.dev` 被阻断导致不可访问。假设绑定域名为 `rulesets.example.com`，文档后续说明均以此为例
 
 ## 主要功能
 1. 将多个订阅的规则内容合并成一份，以便生成更少的搜索树、提升规则匹配效率
 2. 反代 `raw.githubusercontent.com` 以便国内直接访问
 3. 将 `https://github.com/RS0485/V2rayDomains2Clash/tree/generated` 的分流规则清单生成网页方便搜索
 
-## 部署
-1. 在 `Cloudflare` 的主页面新建一个 `Workers` 服务，命名为 `rulesets`，将 `ruleset-handler.js` 的内容粘贴到代码编辑区，然后点击 `Save and Deploy` 进行部署。
-2. 假设 `Workers` 的 `subdomain` 设置为 `example.workers.dev`，那么可通过 `rulesets.example.workers.dev` 访问此服务。
-3. 建议绑定自定义域名，避免 `workers.dev` 被阻断导致不可访问。假设绑定域名为 `rulesets.example.com`，文档后续说明均以此为例。
-
-## 规则合并
+### 规则合并
 **为什么要合并规则？**
 对于同一个 `policy`，可能包含多个规则集。例如 `PROXY` 策略可能包含如下规则集:
 ```
@@ -56,12 +57,12 @@ const direct_rulesets = [
 - https://rulesets.example.com/merged-proxy-cidr.yaml
 - https://rulesets.example.com/merged-block.yaml
 
-## 规则反代
+### 规则反代
 国内网络无法直接访问 `raw.githubusercontent.com`，本脚本可进行反代，将订阅链接的 `https://raw.githubusercontent.com/` 替换成 `https://rulesets.example.com/gh/` 即可。
 
 例如 `https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/baidu.yaml` 的反代链接为 `https://rulesets.example.com/gh/RS0485/V2rayDomains2Clash/generated/baidu.yaml`
 
-## 规则清单网页
+### 规则清单网页
 提供一个简单的网页，展示 `https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/`目录下的所有规则清单，通过 `https://rulesets.example.com/` 进行访问，网页内容如下：
 ```
 0x0.yaml   size=242
@@ -75,4 +76,4 @@ const direct_rulesets = [
 ```
 
 ## 注意
-- 本文档提到的 `规则集` 特指 `domain` 和 `ipcidr` 两种格式的规则集，不包含 `classic` 格式！
+- 本文档提到的 `规则集` 支持 `domain`、`ipcidr`和`classic`三种格式，合并的规则集必须使用同一种格式，不同的格式的规则集合并在一起将无法使用！

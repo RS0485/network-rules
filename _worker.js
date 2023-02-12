@@ -219,6 +219,8 @@ addEventListener('fetch', event => {
         );
     }
     else {
-        return event.respondWith(generateRuleList(request_url.hostname));
+        // Otherwise, serve the static assets.
+        return env.ASSETS.fetch(request);
+        //return event.respondWith(generateRuleList(request_url.hostname));
     }
 });
