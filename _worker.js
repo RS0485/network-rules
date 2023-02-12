@@ -1,9 +1,9 @@
 /*
- * Cloudflare Workers: Clash 订阅规则预处理脚本(规则合并、github反代、规则清单网页)
+ * Cloudflare Pages: Clash 订阅规则预处理脚本(规则合并、github反代、规则清单网页)
  * 
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.0.1
+ * @version 1.0.2
  *
  * 主要功能:
  *  1. 将多个订阅的规则内容合并成一份，以便生成更少的搜索树、提升加载和规则匹配效率
@@ -14,7 +14,18 @@
 
 const block_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-ads-all.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-porn.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/pornhub.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/xvideos.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/xnxx.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/metart.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/pornpros.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javbus.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javcc.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javdb.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javwide.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/dmm-porn.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/redtube.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/18comic.yaml'
 ]
 
 const proxy_rulesets = [
@@ -22,17 +33,20 @@ const proxy_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/microsoft.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/oracle.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/cloudflare.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/aws.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/google.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/telegram.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/twitter.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/spotify.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/github.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/gitbook.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/atlassian.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/sourceforge.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/notion.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/rarbg.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/python.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/python.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/stackexchange.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/wikimedia.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/duckduckgo.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/disqus.yaml'
 ]
 
 const proxy_cidr_rulesets = [
@@ -44,7 +58,8 @@ const proxy_cidr_rulesets = [
 
 const direct_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/baidu.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/zhihu.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/zhihu.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/tencent.yaml'
 ]
 
 /**
@@ -178,16 +193,24 @@ async function generateRuleList(hostname) {
 
 <body>`
 
+    const merged_rulesets = ['merged-proxy.yaml', 'merged-proxy-cidr.yaml', 'merged-direct.yaml', 'merged-block.yaml']
+    merged_rulesets.forEach(ruleset => {
+        html += `<a title="${ruleset}" href="https://${hostname}/${ruleset}">${ruleset}</a><br>`
+    })
+
+    html += '<br>'
+
     rulesets.tree.forEach(ruleset => {
-        const size = format_traffic(ruleset.size)
-        html += `<a title="${ruleset.path}" href="https://${hostname}/gh/RS0485/V2rayDomains2Clash/generated/${ruleset.path}">${ruleset.path}</a> &emsp;${size.value} ${size.unit}<br>`
+        if (ruleset.path.indexOf('.nojekyll') !== 0) {
+            const size = format_traffic(ruleset.size)
+            html += `<a title="${ruleset.path}" href="https://${hostname}/gh/RS0485/V2rayDomains2Clash/generated/${ruleset.path}">${ruleset.path}</a> &emsp;${size.value} ${size.unit}<br>`
+        }
     })
 
     html += '</body> </html>'
 
     return new Response(html, init);
 }
-
 
 export default {
     async fetch(request, env) {
@@ -206,22 +229,42 @@ export default {
             return mergeRulesets(proxy_cidr_rulesets);
         }
         else if (request_url.pathname.startsWith('/gh/')) {
-            // Reverse proxy for githubusercontent
-            request_url.hostname = "raw.githubusercontent.com";
-            request_url.pathname = request_url.pathname.substring(4)
+            // On request to proxy the repo itself, serve with local static assets
+            const network_rules_pattern  = '/gh/RS0485/network-rules/main/'
+            if (request_url.pathname.startsWith(network_rules_pattern)) {
+                request_url.pathname = request_url.pathname.substring(network_rules_pattern.length)
+                return env.ASSETS.fetch(request);
+            }
+            else {
+                // Proxy other githubusercontent files
+                request_url.hostname = "raw.githubusercontent.com";
+                request_url.pathname = request_url.pathname.substring(4)
 
-            let request = new Request(request_url, request);
-            return fetch(request, {
-                headers: {
-                    'Referer': 'https://github.com/RS0485',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
-                }
-            })
+                let request = new Request(request_url, event.request);
+                return event.respondWith(
+                    fetch(request, {
+                        headers: {
+                            'Referer': 'https://github.com/RS0485',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
+                        }
+                    })
+                )
+            }
+        }
+        else if (request_url.pathname.startsWith('/list/')) {
+            return generateRuleList(request_url.hostname);
         }
         else {
-            // Otherwise, serve the static assets.
-            return env.ASSETS.fetch(request);
-            //return event.respondWith(generateRuleList(request_url.hostname));
+            return new Response(`<!DOCTYPE html>
+            <body>
+              <h1>Network Rules</h1>
+              <p>This page is served by Cloudflare Pages, the script is available at <a title="RS0485/network-rules" href="https://github.com/RS0485/network-rules">RS0485/network-rules</a></p>
+              <p>The full list of rulesets is available <a title="List of rulesets" href="./list/">Here</a></p>
+            </body>`, {
+                headers: {
+                    'content-type': 'text/html;charset=UTF-8',
+                },
+            });
         }
     },
 }

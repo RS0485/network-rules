@@ -63,7 +63,7 @@ const direct_rulesets = [
 例如 `https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/baidu.yaml` 的反代链接为 `https://rulesets.example.com/gh/RS0485/V2rayDomains2Clash/generated/baidu.yaml`
 
 ### 规则清单网页
-提供一个简单的网页，展示 `https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/`目录下的所有规则清单，通过 `https://rulesets.example.com/` 进行访问，网页内容如下：
+提供一个简单的网页，展示 `https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/`目录下的所有规则清单，通过 `https://rulesets.example.com/list/` 进行访问，网页内容如下：
 ```
 0x0.yaml   size=242
 115.yaml   size=369
