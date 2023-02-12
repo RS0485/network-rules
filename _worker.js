@@ -262,7 +262,6 @@ export default {
                 request_url.hostname = "raw.githubusercontent.com";
                 request_url.pathname = request_url.pathname.substring(4)
 
-                let request = new Request(request_url, request);
                 return fetch(`https://${request_url.hostname}${request_url.pathname}`)
             }
         }
