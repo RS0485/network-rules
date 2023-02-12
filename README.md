@@ -19,4 +19,6 @@ Clash(Stash)/Quantumult X rules and scripts
  - [分流规则预处理服务](https://github.com/RS0485/network-rules/tree/main/_worker.js.md)
 
 ## 备注
-- 若修改或引用此REPO的资源，请保留原始链接以便获得更新和修复
+- 此REPO的资源为个人使用，可能随时修改或删库
+- 支持可部署到 `Cloudflare Pages`，[部署说明](https://github.com/RS0485/network-rules/tree/main/_worker.js.md)
+- 参与 [Telegram讨论](https://t.me/rs0485_tech)
