@@ -212,6 +212,29 @@ async function generateRuleList(hostname) {
     return new Response(html, init);
 }
 
+/**
+ * 
+ * @param {*} Fetch Serve files from static asserts
+ * @returns 
+ */
+async function proxyThisRepo(env, request_url, network_rules_pattern) {
+    request_url.pathname = request_url.pathname.substring(network_rules_pattern.length)
+
+    const response = await env.ASSETS.fetch(`https://${request_url.hostname}${request_url.pathname}`)
+
+    // Replace the script link of stoverride/qx conf file
+    let content = await response.text()
+    if (request_url.pathname.endsWith('.stoverride') || request_url.pathname.endsWith('.qx.conf')) {
+        content = content.replace('https://raw.githubusercontent.com/', `https://${request_url.hostname}/gh/`)
+    }
+
+    return new Response(content, {
+        headers: response.headers,
+        status: response.status,
+        statusText: response.statusText
+    })
+}
+
 export default {
     async fetch(request, env) {
         let request_url = new URL(request.url);
@@ -230,25 +253,17 @@ export default {
         }
         else if (request_url.pathname.startsWith('/gh/')) {
             // On request to proxy the repo itself, serve with local static assets
-            const network_rules_pattern  = '/gh/RS0485/network-rules/main/'
+            const network_rules_pattern = '/gh/RS0485/network-rules/main/'
             if (request_url.pathname.startsWith(network_rules_pattern)) {
-                request_url.pathname = request_url.pathname.substring(network_rules_pattern.length)
-                return env.ASSETS.fetch(request);
+                return proxyThisRepo(env, request_url, network_rules_pattern)
             }
             else {
                 // Proxy other githubusercontent files
                 request_url.hostname = "raw.githubusercontent.com";
                 request_url.pathname = request_url.pathname.substring(4)
 
-                let request = new Request(request_url, event.request);
-                return event.respondWith(
-                    fetch(request, {
-                        headers: {
-                            'Referer': 'https://github.com/RS0485',
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
-                        }
-                    })
-                )
+                let request = new Request(request_url, request);
+                return fetch(`https://${request_url.hostname}${request_url.pathname}`)
             }
         }
         else if (request_url.pathname.startsWith('/list/')) {
