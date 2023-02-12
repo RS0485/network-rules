@@ -188,39 +188,40 @@ async function generateRuleList(hostname) {
     return new Response(html, init);
 }
 
-addEventListener('fetch', event => {
-    let request_url = new URL(event.request.url);
 
-    if (request_url.pathname.startsWith('/merged-direct.yaml')) {
-        return event.respondWith(mergeRulesets(direct_rulesets));
-    }
-    else if (request_url.pathname.startsWith('/merged-block.yaml')) {
-        return event.respondWith(mergeRulesets(block_rulesets));
-    }
-    else if (request_url.pathname.startsWith('/merged-proxy.yaml')) {
-        return event.respondWith(mergeRulesets(proxy_rulesets));
-    }
-    else if (request_url.pathname.startsWith('/merged-proxy-cidr.yaml')) {
-        return event.respondWith(mergeRulesets(proxy_cidr_rulesets));
-    }
-    else if (request_url.pathname.startsWith('/gh/')) {
-        // Reverse proxy for githubusercontent
-        request_url.hostname = "raw.githubusercontent.com";
-        request_url.pathname = request_url.pathname.substring(4)
+export default {
+    async fetch(request, env) {
+        let request_url = new URL(request.url);
 
-        let request = new Request(request_url, event.request);
-        return event.respondWith(
-            fetch(request, {
+        if (request_url.pathname.startsWith('/merged-direct.yaml')) {
+            return mergeRulesets(direct_rulesets);
+        }
+        else if (request_url.pathname.startsWith('/merged-block.yaml')) {
+            return mergeRulesets(block_rulesets);
+        }
+        else if (request_url.pathname.startsWith('/merged-proxy.yaml')) {
+            return mergeRulesets(proxy_rulesets);
+        }
+        else if (request_url.pathname.startsWith('/merged-proxy-cidr.yaml')) {
+            return mergeRulesets(proxy_cidr_rulesets);
+        }
+        else if (request_url.pathname.startsWith('/gh/')) {
+            // Reverse proxy for githubusercontent
+            request_url.hostname = "raw.githubusercontent.com";
+            request_url.pathname = request_url.pathname.substring(4)
+
+            let request = new Request(request_url, request);
+            return fetch(request, {
                 headers: {
                     'Referer': 'https://github.com/RS0485',
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'
                 }
             })
-        );
-    }
-    else {
-        // Otherwise, serve the static assets.
-        return env.ASSETS.fetch(request);
-        //return event.respondWith(generateRuleList(request_url.hostname));
-    }
-});
+        }
+        else {
+            // Otherwise, serve the static assets.
+            return env.ASSETS.fetch(request);
+            //return event.respondWith(generateRuleList(request_url.hostname));
+        }
+    },
+}
