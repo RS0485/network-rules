@@ -14,18 +14,7 @@
 
 const block_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-ads-all.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/pornhub.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/xvideos.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/xnxx.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/metart.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/pornpros.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javbus.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javcc.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javdb.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/javwide.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/dmm-porn.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/redtube.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/18comic.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-porn.yaml'
 ]
 
 const proxy_rulesets = [
@@ -33,20 +22,26 @@ const proxy_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/microsoft.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/oracle.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/cloudflare.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/aws.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/amazon.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/google.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/telegram.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/twitter.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/spotify.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/mozilla.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/ubuntu.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/debian.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/archlinux.yaml',
+
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/github.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/gitbook.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/notion.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/rarbg.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/python.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/atlassian.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/stackexchange.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/notion.yaml',
+
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/spotify.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/rarbg.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/wikimedia.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/duckduckgo.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/disqus.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/reddit.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/mega.yaml'
 ]
 
 const proxy_cidr_rulesets = [
@@ -114,7 +109,7 @@ async function mergeRulesets(rulesets) {
         i += MAX_REQ_TASK
     }
 
-    var content = '# Combined rules for the following subscription URLs:\n'
+    var content = `# Combined rules for the following ${rulesets.length} subscription URLs:\n`
     rulesets.forEach(ruleset => {
         content += '# ' + ruleset + '\n'
     });
