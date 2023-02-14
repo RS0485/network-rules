@@ -215,12 +215,16 @@ async function generateRuleList(hostname) {
 async function proxyThisRepo(env, request_url, network_rules_pattern) {
     request_url.pathname = request_url.pathname.substring(network_rules_pattern.length)
 
-    const response = await env.ASSETS.fetch(`https://${request_url.hostname}${request_url.pathname}`)
+    var response = await env.ASSETS.fetch(`https://${request_url.hostname}${request_url.pathname}`)
 
     // Replace the script link of stoverride/qx conf file
     let content = await response.text()
     if (request_url.pathname.endsWith('.stoverride') || request_url.pathname.endsWith('.qx.conf')) {
         content = content.replace('https://raw.githubusercontent.com/', `https://${request_url.hostname}/gh/`)
+
+        // Allow preview .stoverride files on browser
+        response = new Response(content, response)
+        response.headers.set('content-type', 'text/plain; charset=utf-8')
     }
 
     return new Response(content, {
