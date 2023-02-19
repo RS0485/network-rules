@@ -55,7 +55,7 @@ async function request_web(url, headers) {
 
 (async () => {
     try {
-        const cookies = $persistentStore.read('cloudcone-vps-cookies')
+        var cookies = $persistentStore.read('cloudcone-vps-cookies')
         if (typeof cookies === 'undefined') {
             cookies = ''
         }
