@@ -60,7 +60,7 @@ function format_traffic(traffic_in_bytes) {
     }
 
     return {
-        value: friendly_traffic.toFixed(2),
+        value: parseFloat(friendly_traffic.toFixed(2)),
         unit: friendly_unit
     }
 }
@@ -145,8 +145,8 @@ async function request_web(url, headers) {
 
         var title = `${json.payload.server.data.name.toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.payload.state.data.state.state}`
         var content = `${json.payload.server.data.os.name}`
-        content += `\n${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit} MEM`
-        content += `\n${traffic_used.value} ${traffic_used.unit} of ${traffic_total.value} ${traffic_total.unit} NET`
+        content += `\nMEM ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
+        content += `\nNET ${traffic_used.value} ${traffic_used.unit} of ${traffic_total.value} ${traffic_total.unit}`
         content += `\n🔄 RESET ${reset_date}`
 
         body = {

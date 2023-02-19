@@ -10,7 +10,7 @@ tiles:
     title: 'CloudCone VPS'
     content: '刷新中...'
     icon: 'https://app.cloudcone.com/assets/img/logo.png'
-    backgroundColor: '5e35b1'
+    backgroundColor: '#5e35b1'
 
 script-providers:
   cloudcone-vps:
