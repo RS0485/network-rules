@@ -10,7 +10,7 @@ tiles:
     title: 'EUGameHost VPS'
     content: '刷新中...'
     icon: 'bolt.horizontal.icloud.fill'
-    backgroundColor: '#ff8f00'
+    backgroundColor: '#0277bd'
 
 script-providers:
   eugamehost-vps:
