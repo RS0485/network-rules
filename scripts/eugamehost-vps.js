@@ -148,7 +148,7 @@ async function request_web(url, headers) {
         var title = `${json.payload.server.data.name.toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.payload.state.data.state.state}`
         var content = `${json.payload.server.data.os.name}`
         content += `\n𝐌𝐄𝐌 ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
-        content += `\n𝐁𝐖 ↓ ${traffic_dl.value} ${traffic_dl.unit} ↑ ${traffic_up.value} ${traffic_up.unit} of ${traffic_limit.value} ${traffic_limit.unit}`
+        content += `\n𝐍𝐄𝐓 ↓ ${traffic_dl.value} ${traffic_dl.unit} ↑ ${traffic_up.value} ${traffic_up.unit} of ${traffic_limit.value} ${traffic_limit.unit}/Mo`
         content += `\n🔄 𝐑𝐄𝐒𝐄𝐓 ${reset_date}`
 
         body = {

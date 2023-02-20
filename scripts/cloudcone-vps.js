@@ -97,7 +97,7 @@ async function request_web(url, headers) {
         var title = `${json.info.name.substring(0, 32).toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.info.status}`
         var content = `${json.info.description} - ${json.usage.ips.ipv6} IPv6`
         content += `\n${json.info.node} @ ${json.info.dc_location}`
-        content += `\n$⇅ {json.usage.bandwidth.used.value} ${json.usage.bandwidth.used.unit} of ${json.usage.bandwidth.total.value} ${json.usage.bandwidth.total.unit}/${json.usage.bandwidth.cycle}`
+        content += `\n⇅ ${json.usage.bandwidth.used.value} ${json.usage.bandwidth.used.unit} of ${json.usage.bandwidth.total.value} ${json.usage.bandwidth.total.unit}/${json.usage.bandwidth.cycle}`
         content += `\n💵 𝐑𝐄𝐍𝐄𝐖 ${json.info.renew}`
 
         body = {
