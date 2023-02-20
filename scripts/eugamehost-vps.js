@@ -139,7 +139,7 @@ async function request_web(url, headers) {
 
         const traffic_dl = format_traffic(json.payload.state.data.state.traffic.total.rx)
         const traffic_up = format_traffic(json.payload.state.data.state.traffic.total.tx)
-        //const traffic_total =  format_traffic(json.payload.state.data.state.traffic.total.total)
+        const traffic_total =  format_traffic(json.payload.state.data.state.traffic.total.total)
         const traffic_limit = format_traffic(json.payload.server.data.resources.traffic * 1000 * 1000 * 1000)
 
         var reset_date = Date.parse(json.payload.server.data.traffic.end)
@@ -148,7 +148,7 @@ async function request_web(url, headers) {
         var title = `${json.payload.server.data.name.toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.payload.state.data.state.state}`
         var content = `${json.payload.server.data.os.name}`
         content += `\n𝐌𝐄𝐌 ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
-        content += `\n𝐍𝐄𝐓 ↑ ${traffic_up.value} ${traffic_up.unit}  ↓ ${traffic_dl.value} ${traffic_dl.unit} of ${traffic_limit.value} ${traffic_limit.unit}/Mo`
+        content += `\n𝐍𝐄𝐓 ↑ ${traffic_up.value} ${traffic_up.unit}  ↓ ${traffic_dl.value} ${traffic_dl.unit} = ⇅ ${traffic_total.value} ${traffic_total.unit} of ${traffic_limit.value} ${traffic_limit.unit}/Mo`
         content += `\n🔄 𝐑𝐄𝐒𝐄𝐓 ${reset_date}`
 
         body = {
