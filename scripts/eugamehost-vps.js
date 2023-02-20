@@ -137,17 +137,19 @@ async function request_web(url, headers) {
             - json.payload.state.data.state.memory.cached
             - json.payload.state.data.state.memory.sreclaimable) * 1000)
 
-        const traffic_used = format_traffic(json.payload.state.data.state.traffic.total.total)
-        const traffic_total = format_traffic(json.payload.server.data.resources.traffic * 1000 * 1000 * 1000)
+        const traffic_dl = format_traffic(json.payload.state.data.state.traffic.total.rx)
+        const traffic_up = format_traffic(json.payload.state.data.state.traffic.total.tx)
+        //const traffic_total =  format_traffic(json.payload.state.data.state.traffic.total.total)
+        const traffic_limit = format_traffic(json.payload.server.data.resources.traffic * 1000 * 1000 * 1000)
 
         var reset_date = Date.parse(json.payload.server.data.traffic.end)
         reset_date = new Date(reset_date).toLocaleString('zh-CN')
 
         var title = `${json.payload.server.data.name.toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.payload.state.data.state.state}`
         var content = `${json.payload.server.data.os.name}`
-        content += `\nMEM ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
-        content += `\nNET ${traffic_used.value} ${traffic_used.unit} of ${traffic_total.value} ${traffic_total.unit}`
-        content += `\n🔄 RESET ${reset_date}`
+        content += `\n𝐌𝐄𝐌 ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
+        content += `\n𝐁𝐖 ↓ ${traffic_dl.value} ${traffic_dl.unit} ↑ ${traffic_up.value} ${traffic_up.unit} of ${traffic_limit.value} ${traffic_limit.unit}`
+        content += `\n🔄 𝐑𝐄𝐒𝐄𝐓 ${reset_date}`
 
         body = {
             title: title,
