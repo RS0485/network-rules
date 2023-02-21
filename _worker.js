@@ -14,7 +14,8 @@
 
 const block_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-ads-all.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-porn.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-porn.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/4chan.yaml'
 ]
 
 const proxy_rulesets = [
@@ -41,7 +42,8 @@ const proxy_rulesets = [
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/rarbg.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/wikimedia.yaml',
     'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/reddit.yaml',
-    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/mega.yaml'
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/mega.yaml',
+    'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/discord.yaml'
 ]
 
 const proxy_cidr_rulesets = [
