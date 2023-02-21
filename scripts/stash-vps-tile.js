@@ -191,9 +191,9 @@ function format_traffic(traffic_in_bytes) {
             reset_date = new Date(reset_date).toLocaleString('zh-CN')
 
             var title = `${json.payload.server.data.name.toUpperCase()} ` + ((typeof json.debug_info !== 'undefined' && json.debug_info.re_login) ? '+' : '-') + ` ${json.payload.state.data.state.state}`
-            var content = `${json.payload.server.data.os.name}`
-            content += `\n𝐌𝐄𝐌 ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
-            content += `\n𝐍𝐄𝐓 ↑ ${traffic_up.value} ${traffic_up.unit}  ↓ ${traffic_dl.value} ${traffic_dl.unit} = ⇅ ${traffic_total.value} ${traffic_total.unit} of ${traffic_limit.value} ${traffic_limit.unit}/Mo`
+            var content = `\n𝐌𝐄𝐌 ${mem_used.value} ${mem_used.unit} of ${mem_total.value} ${mem_total.unit}`
+            content += `\n𝐍𝐄𝐓 ↑ ${traffic_up.value} ${traffic_up.unit}  ↓ ${traffic_dl.value} ${traffic_dl.unit}`
+            content += `\n⇅ ${traffic_total.value} ${traffic_total.unit} of ${traffic_limit.value} ${traffic_limit.unit}/Mo`
             content += `\n🔄 𝐑𝐄𝐒𝐄𝐓 ${reset_date}`
 
             const body = {
