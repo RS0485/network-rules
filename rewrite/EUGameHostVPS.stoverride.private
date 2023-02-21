@@ -11,8 +11,9 @@ tiles:
     content: '刷新中...'
     icon: 'bolt.horizontal.icloud.fill'
     backgroundColor: '#0277bd'
+    argument: 'eugamehost'
 
 script-providers:
   eugamehost-vps:
-    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/eugamehost-vps.js
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/stash-vps-tile.js
     interval: 86400

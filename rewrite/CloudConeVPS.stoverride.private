@@ -11,8 +11,9 @@ tiles:
     content: '刷新中...'
     icon: 'https://app.cloudcone.com/assets/img/logo.png'
     backgroundColor: '#5e35b1'
+    argument: 'cloudcone'
 
 script-providers:
   cloudcone-vps:
-    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/cloudcone-vps.js
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/stash-vps-tile.js
     interval: 86400
