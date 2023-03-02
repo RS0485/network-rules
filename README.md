@@ -13,6 +13,7 @@ Clash(Stash)/Quantumult X rules and scripts
 - [Stash Insight](https://github.com/RS0485/network-rules/blob/main/scripts/clash-insight.md)
 - [实时油价查询](https://github.com/RS0485/network-rules/tree/main/rewrite/GasPrice.stoverride)
 - [直连+代理IP地址信息](https://github.com/RS0485/network-rules/tree/main/rewrite/IPGeolocation.stoverride)
+- [New Bing 聊天修复](https://github.com/RS0485/network-rules/tree/main/rewrite/TheNewBing.stoverride)
 
 ## 备注
 - 此REPO可作为 `分流规则预处理服务` 部署到 `Cloudflare Pages`，[部署说明](https://github.com/RS0485/network-rules/tree/main/_worker.js.md)

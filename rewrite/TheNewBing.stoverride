@@ -6,6 +6,11 @@ desc: >-
 http:
   mitm:
     - 'www.bing.com'
+    - 'assets.msn.com'
 
   header-rewrite:
     - ^https?:\/\/www\.bing\.com request-add X-Forwarded-For 104.16.123.96
+
+  url-rewrite:
+    - ^https:\/\/assets\.msn\.com\/service\/news\/ - reject-dict
+    - ^https:\/\/www\.bing\.com\/api\/v7\/news\/ - reject-dict
