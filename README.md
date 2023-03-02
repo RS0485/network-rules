@@ -8,6 +8,7 @@ Clash(Stash)/Quantumult X rules and scripts
 - [IPv6 连接测试](https://github.com/RS0485/network-rules/tree/main/scripts/ipv6-check.js)
 - [Clash Insight](https://github.com/RS0485/network-rules/blob/main/scripts/clash-insight.md)
 - [Quantumult X API](https://github.com/RS0485/network-rules/tree/main/rewrite/QuanAPI.qx.conf)
+- [New Bing 聊天修复](https://github.com/RS0485/network-rules/tree/main/rewrite/TheNewBing.qx.conf)
 
 ### Stash
 - [Stash Insight](https://github.com/RS0485/network-rules/blob/main/scripts/clash-insight.md)
