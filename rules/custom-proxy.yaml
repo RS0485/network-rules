@@ -8,6 +8,7 @@ payload:
   - "+.apkmirror.com"
   - "+.apkpure.com"
   - "+.cnbeta.com.tw"
+  - "+.home-assistant.io"
   # IP-API
   - "+.ipinfo.io"
   - "+.ipgeolocation.io"
