@@ -17,6 +17,8 @@ payload:
   - "+.plex.tv"
   - "+.yhdmp.com"
   - "+.xiaoheimi.net"
-    # Misc
+  # Misc
   - "+.qiyoujiage.com"
   - "+.googleapis-cn.com"
+  # 该域名无法连接时将出现请求风暴
+  - "gateway.icloud.com"
