@@ -43,4 +43,6 @@ payload:
   - "analytics2.10010.com"
   - "pushservice.10010.com"
   - "+.ad.10010.com"
+  # Goole
+  - "+.doubleclick-cn.net"
   
