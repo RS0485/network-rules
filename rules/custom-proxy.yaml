@@ -22,3 +22,4 @@ payload:
   - "+.googleapis-cn.com"
   # 该域名无法连接时将出现请求风暴
   - "gateway.icloud.com"
+  - "gateway.icloud.com.cn"
