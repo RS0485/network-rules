@@ -8,6 +8,7 @@ payload:
   - "+.apkmirror.com"
   - "+.apkpure.com"
   - "+.cnbeta.com.tw"
+  - "+.home-assistant.io"
   # IP-API
   - "+.ipinfo.io"
   - "+.ipgeolocation.io"
@@ -16,6 +17,9 @@ payload:
   - "+.plex.tv"
   - "+.yhdmp.com"
   - "+.xiaoheimi.net"
-    # Misc
+  # Misc
   - "+.qiyoujiage.com"
   - "+.googleapis-cn.com"
+  # 该域名无法连接时将出现请求风暴
+  - "gateway.icloud.com"
+  - "gateway.icloud.com.cn"
