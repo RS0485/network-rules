@@ -2,6 +2,7 @@ name: New Bing 聊天修复
 desc: >-
   1. 修复 Bing App 无法打开 Chat 页面，提示"出错了"；
   2. 拦截"资讯"内容，节省流量；
+  3. 支持在其它浏览器打开 Bing Chat；
   注意：使用此覆写前您的账号必须获得 New Bing 的使用资格，并将"国家或地区"设置为 New Bing 支持的地区
 
 http:
@@ -15,3 +16,4 @@ http:
 
   header-rewrite:
     - ^https?:\/\/www\.bing\.com request-add X-Forwarded-For 104.16.123.96
+    - ^https?:\/\/www\.bing\.com request-replace User-Agent Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/605.1.15 BingSapphire/1.0.410315001
