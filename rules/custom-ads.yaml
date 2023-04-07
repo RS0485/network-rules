@@ -38,6 +38,7 @@ payload:
   - "+.gdt.qq.com"
   # 华为运动健康
   - "sportsuggest.hicloud.com"
+  - "sportsuggest.dbankcloud.cn"
   # 10010
   - "smartad.10010.com"
   - "analytics2.10010.com"
@@ -45,4 +46,6 @@ payload:
   - "+.ad.10010.com"
   # Goole
   - "+.doubleclick-cn.net"
+  # 小红书
+  - "ads-video-al.xhscdn.com"
   
