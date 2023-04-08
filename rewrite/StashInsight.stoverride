@@ -42,6 +42,7 @@ tiles:
     icon: 'arrow.up.arrow.down.circle.fill'
     backgroundColor: '#4CAF50'
     argument: 'Stash iOS,tile,http://localhost:9090/connections,,stash'
+    url: 'http://clash.insight:9090/html'
 
 script-providers:
   clash-insight:
