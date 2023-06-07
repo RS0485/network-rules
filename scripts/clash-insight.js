@@ -3,13 +3,13 @@
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.2.7
+ * @version 1.2.8
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Node.js、Stash 和 Quantumult X 调用
  * @readme https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/clash-insight.md
  *
  */
 
-const version = '1.2.7';
+const version = '1.2.8';
 
 const APITypes = {
     Stash: "stash",
@@ -157,11 +157,11 @@ class ConnectionsInsight {
         const upload_traffic = this.#format_traffic(json_data.uploadTotal);
         const download_traffic = this.#format_traffic(json_data.downloadTotal);
 
-        // 最近10个请求
+        // 最近15个请求
         json_data.connections.sort(function (a, b) {
             return new Date(b.start) - new Date(a.start);
         });
-        const recent_requests = json_data.connections.slice(0, 10);
+        const recent_requests = json_data.connections.slice(0, 15);
 
         // DNS 分析
         // 需覆盖REJECT，因为REJECT也可能进行了解析
@@ -521,6 +521,36 @@ class ReportGenerator {
                 color: red;
                 font-weight: bold;
             }
+
+            span[class*="policy-REJECT" i] {
+                color: red;
+                font-weight: bold;
+            }
+
+            span[class*="policy-DIRECT" i]{
+                color: green;
+                font-weight: bold;
+            }
+
+            span[class*="network-tcp" i] {
+                color: #008000; /* green */
+                font-weight: bold;
+            }
+
+            span[class*="network-udp" i] {
+                color: #0000FF; /* blue */
+                font-weight: bold;
+            }
+
+            span[class*="network-http" i] {
+                color: #FFA500; /* orange */
+                font-weight: bold;
+            }
+
+            span[class*="network-https" i] {
+                color: #800080; /* purple */
+                font-weight: bold;
+            }
         </style>
     </head>
 
@@ -596,7 +626,7 @@ class ReportGenerator {
 
         html += this.#create_insight_node(
             '最近请求',
-            '以下是最近的10个请求（不包含本地回环）。',
+            '以下是最近的15个请求（不包含本地回环）。',
             '',
             connections_result.recent_requests);
 
@@ -633,8 +663,8 @@ class ReportGenerator {
 
         proxies_summary_table.push([
             'name',
-            'chain / info',
             'type',
+            'chain / info',
             'udp',
             'delay',
             'test time']);
@@ -643,8 +673,8 @@ class ReportGenerator {
             if (!['DIRECT', 'REJECT'].includes(proxy.name.toUpperCase())) {
                 proxies_summary_table.push([
                     proxy.name,
-                    proxy.chain.join(' → '),
                     proxy.type,
+                    `<span class="policy-${proxy.chain[proxy.chain.length - 1]}">${proxy.chain.join(' → ')}</span>`,
                     proxy.udp ?? '',
                     proxy.delay ? (proxy.delay === 65535 ? '<span class="red-text">timeout</span>' : `${proxy.delay} ms`) : '',
                     proxy.test_time ?? '']);
@@ -654,8 +684,8 @@ class ReportGenerator {
         proxies_result.providers.forEach(provider => {
             proxies_summary_table.push([
                 provider.name,
-                `<span>Σ ${provider.servers}</span> <span>↻ ${provider.updatedAt}</span>`,
                 `Proxy Provider / ${provider.type}`,
+                `<span>Σ ${provider.servers}</span> <span>↻ ${provider.updatedAt}</span>`,
                 '-',
                 provider.delay ? (provider.delay === 65535 ? '<span class="red-text">timeout</span>' : `${provider.delay} ms`) : '',
                 provider.test_time ?? '']);
@@ -730,11 +760,11 @@ class ReportGenerator {
             {
                 insight_table.push([
                     idx,
-                    `${record.network}`,
+                    `<span class="network-${record.network}">${record.network}</span>`,
                     `${record.host}`,
                     `${record.destinationIP}:${record.destinationPort}`,
                     `${record.rule}: ${record.rulePayload}`,
-                    `${record.chains[0]}`,
+                    `<span class="policy-${record.chains[0]}">${record.chains[0]}</span>`,
                     `↑ ${upload.value} ${upload.unit}  ↓ ${download.value} ${download.unit}`,
                     `${record.dns_resolve_time}${isNaN(record.dns_resolve_time) ? '' : ' ms'}`,
                     `${record.connect_time}${isNaN(record.connect_time) ? '' : ' ms'}`,
