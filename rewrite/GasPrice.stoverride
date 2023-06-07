@@ -1,0 +1,19 @@
+name: 实时油价查询
+desc: >-
+  通过网络API查询当前油价，默认查询地区为广东省，可通过两种方法修改查询地区：
+  1. 拷贝此覆写，设置tile的argument为查询地区
+  2. 在脚本编辑器执行代码设置地区，例如设置成云南：$persistentStore.write("yunnan", "gas_price_region"); $done({settings: "ok"})
+
+tiles:
+  - name: gas-price
+    interval: 3600
+    title: '实时油价信息'
+    content: '刷新中...'
+    icon: 'fuelpump.fill'
+    backgroundColor: '#FB8C00'
+    argument: 'guangdong'
+
+script-providers:
+  gas-price:
+    url: https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/gas-price.js
+    interval: 86400

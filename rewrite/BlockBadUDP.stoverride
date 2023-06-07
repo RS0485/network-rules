@@ -1,0 +1,19 @@
+name: Block Bad UDP
+desc: >-
+  拦截被DNS污染和针对YouTube的UDP请求，对其他UDP请求仍按设定规则匹配和转发，尽可能保留完整的UDP体验。
+  兼容YouTube去广告覆写，建议使用Stash Insight覆写模块进行UDP诊断。
+
+rule-providers:
+  R-DNS-POLLUTED-IPS:
+    type: http
+    behavior: ipcidr
+    path: ./rulesets/dns-polluted-ips.yaml
+    url: 'https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/dns-polluted-ips.yaml'
+    interval: 86400
+
+script:
+  shortcuts:
+    S-BAD-UDP: network == 'udp' and ('googlevideo' in host or 'youtube' in host or match_provider('R-DNS-POLLUTED-IPS'))
+
+rules:
+  - SCRIPT,S-BAD-UDP,REJECT,no-resolve
