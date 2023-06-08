@@ -497,7 +497,7 @@ class ReportGenerator {
             }
 
             thead {
-                background: #c0c0c0;
+                background: #cecece;
             }
 
             th,
@@ -505,10 +505,11 @@ class ReportGenerator {
                 text-align: left;
                 padding: 5px;
                 border: 1px solid #dddddd;
+                color: #3F3F3F;
             }
 
             tr:nth-child(even) {
-                background: #f2f2f2
+                background: #f2f2f2;
             }
 
             h1 span {
@@ -520,6 +521,10 @@ class ReportGenerator {
             .red-text {
                 color: red;
                 font-weight: bold;
+            }
+
+            .dimmed-cell {
+                opacity: 0.5;
             }
 
             span[class*="policy-REJECT" i] {
@@ -543,7 +548,7 @@ class ReportGenerator {
             }
 
             span[class*="network-http" i] {
-                color: #FFA500; /* orange */
+                color: #E65100; /* orange */
                 font-weight: bold;
             }
 
@@ -561,6 +566,16 @@ class ReportGenerator {
         ${this.#generate_network_stats(connections_result)}
         ${this.#generate_proxies_summary(proxies_result)}
         ${this.#generate_connection_insights(connections_result)}
+
+        <script>
+            // Dim cells with the text "NaN"
+            var cells = document.querySelectorAll("td");
+            for (var i = 0; i < cells.length; i++) {
+                if (cells[i].textContent === "NaN") {
+                    cells[i].classList.add("dimmed-cell");
+                }
+            }
+      </script>
     </body>
     </html>`;
 
@@ -760,7 +775,7 @@ class ReportGenerator {
             {
                 insight_table.push([
                     idx,
-                    `<span class="network-${record.network}">${record.network}</span>`,
+                    `<span class="network-${record.network}">${record.network.toUpperCase()}</span>`,
                     `${record.host}`,
                     `${record.destinationIP}:${record.destinationPort}`,
                     `${record.rule}: ${record.rulePayload}`,
