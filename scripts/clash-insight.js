@@ -3,13 +3,13 @@
  *
  * @author RS0485
  * @repo https://github.com/RS0485/network-rules
- * @version 1.2.8
+ * @version 1.2.9
  * @description 分析Clash的连接信息并给出配置优化建议，兼容Stash和Clash客户端，支持被Node.js、Stash 和 Quantumult X 调用
  * @readme https://raw.githubusercontent.com/RS0485/network-rules/main/scripts/clash-insight.md
  *
  */
 
-const version = '1.2.8';
+const version = '1.2.9';
 
 const APITypes = {
     Stash: "stash",
@@ -167,6 +167,9 @@ class ConnectionsInsight {
         // 需覆盖REJECT，因为REJECT也可能进行了解析
         const dns = this.#analysis_dns(json_data.connections, api_type);
 
+        // 请求风暴（包含REJECT）
+        const storm_requests = this.#analysis_storm_requests(json_data.connections, api_type);
+
         // 排除REJECT之后进行后续分析
         json_data.connections = json_data.connections.filter(c => c.chains[0].toUpperCase() !== 'REJECT');
 
@@ -179,6 +182,7 @@ class ConnectionsInsight {
             upload_traffic: upload_traffic,
             download_traffic: download_traffic,
             recent_requests: this.#convert_connections(recent_requests, api_type),
+            storm_requests: storm_requests,
 
             policy: policy,
             dns: dns,
@@ -262,6 +266,63 @@ class ConnectionsInsight {
         });
 
         return common_connections;
+    }
+
+    /**
+     * 分析请求风暴
+     * @param {*} connections
+     * @param {*} api_type
+     */
+    #analysis_storm_requests(connections, api_type) {
+        const unique_connections = {};
+        connections.forEach(connection => {
+            const host = connection.metadata.host || `${connection.metadata.destinationIP}:${connection.metadata.destinationPort}`;
+            const connection_start = new Date(connection.start);
+
+            if (!unique_connections[host]) {
+                unique_connections[host] = {
+                    first: connection,
+                    count: 1,
+                    start_time: connection_start,
+                    end_time: connection_start
+                };
+            } else {
+                unique_connections[host].count += 1;
+                if (connection_start < unique_connections[host].start_time) {
+                    unique_connections[host].start_time = connection_start;
+                    unique_connections[host].first = connection;
+                }
+                if (connection_start > unique_connections[host].end_time) {
+                    unique_connections[host].end_time = connection_start;
+                }
+            }
+        });
+
+        const storm_requests = [];
+        Object.values(unique_connections).forEach(unique_connection => {
+            const time_interval = (unique_connection.end_time.getTime() - unique_connection.start_time.getTime()) / 1000;
+            const req_rate = time_interval > 0 ? (unique_connection.count / time_interval).toFixed(2) : 0;
+
+            // 请求风暴判定条件：
+            // 1. 不到1s连发5条请求
+            // 2. 请求超过5条并且频率 >= 2 req/s
+            if ((time_interval <= 0 && unique_connection.count >= 5) || (unique_connection.count >= 5 && req_rate >= 2)) {
+                storm_requests.push({
+                    host: unique_connection.first.metadata.host
+                        || `${unique_connection.first.metadata.destinationIP}:${unique_connection.first.metadata.destinationPort}`,
+                    start_time: unique_connection.start_time,
+                    end_time: unique_connection.end_time,
+                    time_interval,
+                    req_rate,
+                    count: unique_connection.count,
+                    first: this.#convert_connections([unique_connection.first], api_type)[0]
+                });
+            }
+        });
+
+        storm_requests.sort((a, b) => b.req_rate - a.req_rate);
+
+        return storm_requests;
     }
 
     /**
@@ -645,6 +706,8 @@ class ReportGenerator {
             '',
             connections_result.recent_requests);
 
+        html += this.#generate_storm_requests_report(connections_result);
+
         html += this.#create_insight_node(
             '不必要的DNS解析',
             '以下域名的最终出口不是直连，无需在本地进行DNS解析。<b>列表中的域名浪费了一次DNS解析时间。</b>',
@@ -707,6 +770,46 @@ class ReportGenerator {
         });
 
         html += this.#create_table_node('代理信息', '', '', proxies_summary_table);
+
+        return html;
+    }
+
+    #generate_storm_requests_report(connections_result) {
+        var html = '';
+        var storm_requests_table = [];
+
+        storm_requests_table.push([
+            '#',
+            'network',
+            'host / ip:port',
+            'rule',
+            'outbound',
+            'start time',
+            'time interval',
+            'count',
+            'request rate']);
+
+        var idx = 0;
+        connections_result.storm_requests.forEach(store_request => {
+            idx++;
+
+            storm_requests_table.push([
+                idx,
+                `<span class="network-${store_request.first.network}">${store_request.first.network.toUpperCase()}</span>`,
+                `${store_request.host}`,
+                `${store_request.first.rule}: ${store_request.first.rulePayload}`,
+                `<span class="policy-${store_request.first.chains[0]}">${store_request.first.chains[0]}</span>`,
+                `${store_request.start_time.getHours().toString().padStart(2, '0')}:${store_request.start_time.getMinutes().toString().padStart(2, '0')}:${store_request.start_time.getSeconds().toString().padStart(2, '0')}.${store_request.start_time.getMilliseconds().toString().padStart(3, '0')}`,
+                `${store_request.time_interval} s`,
+                `${store_request.count}`,
+                `${store_request.req_rate} req/s`]);
+        });
+
+        html += this.#create_table_node(
+            '请求风暴',
+            '以下请求在短时间内连续发出（大于每秒 2 个请求），可能会严重消耗设备资源和电量。',
+            '请尝试稍后刷新页面，如果请求风暴持续存在，这可能意味着该应用程序存在 BUG 或在后台非法获取数据。建议立即定位相关应用程序并卸载。',
+            storm_requests_table);
 
         return html;
     }
