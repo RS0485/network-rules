@@ -302,7 +302,7 @@ class ConnectionsInsight {
         Object.values(unique_connections).forEach(unique_connection => {
             const time_interval = (unique_connection.end_time.getTime() - unique_connection.start_time.getTime()) / 1000;
             const req_rate = time_interval > 0 ? (unique_connection.count / time_interval).toFixed(2) : 0;
-            const active = ((new Date().getTime() - unique_connection.end_time.getTime()) / 1000) > 10;
+            const active = ((new Date().getTime() - unique_connection.end_time.getTime()) / 1000) < 10;
 
             // 请求风暴判定条件：
             // 1. 不到1s连发5条请求
