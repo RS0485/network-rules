@@ -302,6 +302,7 @@ class ConnectionsInsight {
         Object.values(unique_connections).forEach(unique_connection => {
             const time_interval = (unique_connection.end_time.getTime() - unique_connection.start_time.getTime()) / 1000;
             const req_rate = time_interval > 0 ? (unique_connection.count / time_interval).toFixed(2) : 0;
+            const active = ((new Date().getTime() - unique_connection.end_time.getTime()) / 1000) > 10;
 
             // 请求风暴判定条件：
             // 1. 不到1s连发5条请求
@@ -314,6 +315,7 @@ class ConnectionsInsight {
                     end_time: unique_connection.end_time,
                     time_interval,
                     req_rate,
+                    active,
                     count: unique_connection.count,
                     first: this.#convert_connections([unique_connection.first], api_type)[0]
                 });
@@ -784,6 +786,7 @@ class ReportGenerator {
             'host / ip:port',
             'rule',
             'outbound',
+            'active',
             'start time',
             'time interval',
             'count',
@@ -799,6 +802,7 @@ class ReportGenerator {
                 `${store_request.host}`,
                 `${store_request.first.rule}: ${store_request.first.rulePayload}`,
                 `<span class="policy-${store_request.first.chains[0]}">${store_request.first.chains[0]}</span>`,
+                `${store_request.active}`,
                 `${store_request.start_time.getHours().toString().padStart(2, '0')}:${store_request.start_time.getMinutes().toString().padStart(2, '0')}:${store_request.start_time.getSeconds().toString().padStart(2, '0')}.${store_request.start_time.getMilliseconds().toString().padStart(3, '0')}`,
                 `${store_request.time_interval} s`,
                 `${store_request.count}`,

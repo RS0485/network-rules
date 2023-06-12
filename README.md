@@ -1,6 +1,9 @@
 # network-rules
 Clash(Stash)/Quantumult X rules and scripts
 
+![last commit](https://img.shields.io/github/last-commit/RS0485/network-rules)
+[![Telegram](https://img.shields.io/badge/Telegram-Group-33A8E3)](https://t.me/rs0485_discussions)
+
 ## 重写模块
 ### Quantumult X
 - [Quantumult X 资源解析器](https://github.com/RS0485/network-rules/tree/main/resource/README.md) - **Quantumult X直接订阅Clash规则、从`bgp.he.net`直接生成任意国家或地区的`IP-ASN`规则**
@@ -112,7 +115,3 @@ http:
     - '^https?:\/\/example\.com\/raw\/ request-add Authorization Bearer btoa('plain token')'
 ```
 </details>
-
-## 讨论及更新
-- [Telegram 讨论组](https://t.me/rs0485_discussions)
-
