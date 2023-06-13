@@ -21,8 +21,10 @@ export async function onRequest(context) {
 
     let prefixesStr = searchParams.get('prefixes');
     let keywordsStr = searchParams.get('keywords');
-    const prefixes = prefixesStr.split(',');
-    const keywords = keywordsStr.split(',');
+    console.log(`prefixesStr: ${prefixesStr}, keywordsStr:${keywordsStr}`)
+    
+    const prefixes = prefixesStr ? prefixesStr.split(',') : [];
+    const keywords = keywordsStr ? keywordsStr.split(',') : [];
 
     let upstreamURL = searchParams.get('url');
     if (!upstreamURL || upstreamURL === '') {
