@@ -98,6 +98,14 @@ payload:
 | /rulesets/custom/proxy.yaml | <pre>payload:<br>  - "+.nicegram.app"<br>  - "+.nicegram.cloud"</pre> | https://example.com/rulesets/custom/proxy.yaml |
 </details>
 
+<details><summary>过滤规则集</summary>
+
+如果已使用 `script shortcut` 过滤掉一些域名，可通过此功能精简规则集。例如已有脚本：`S-BLOCK-ADS: host.startswith(('ads.', 'ad.', 'log.')) or "analytics" in host`
+ 
+则规则集可精简为：`https://www.example.com/rulesets/filter?url=https://raw.githubusercontent.com/RS0485/V2rayDomains2Clash/generated/category-ads-all.yaml&prefixes=%2B.ads.,%2B.ad.&keywords=analytics`
+
+</details>
+
 <details><summary>生成任意内容的订阅</summary>
 
 将文本内容生成任意APP的订阅链接。需要需手动添加到 `KV`，Key 为订阅的 `URI`，Value 为订阅的内容。
