@@ -19,12 +19,15 @@ export async function onRequest(context) {
     const request = context.request;
     const { searchParams } = new URL(request.url);
 
-    let prefixesStr = searchParams.get('prefixes');
-    let keywordsStr = searchParams.get('keywords');
-    console.log(`prefixesStr: ${prefixesStr}, keywordsStr:${keywordsStr}`)
-    
-    const prefixes = prefixesStr ? prefixesStr.split(',') : [];
-    const keywords = keywordsStr ? keywordsStr.split(',') : [];
+    let prefixesStr = searchParams.get('prefixes') || '';
+    let keywordsStr = searchParams.get('keywords') || '';
+
+    const prefixesOrig = prefixesStr.split(',').map(item => item.trim()).filter(item => item !== '');
+    const prefixesMod = prefixesOrig.map(item => item.startsWith("+.") ? item : "+." + item);
+    const prefixes = [...new Set(prefixesOrig.concat(prefixesMod))];
+
+    const keywords = keywordsStr.split(',').map(item => item.trim()).filter(item => item !== '');
+    console.log(`prefixes: ${prefixes}, keywords:${keywords}`);
 
     let upstreamURL = searchParams.get('url');
     if (!upstreamURL || upstreamURL === '') {
