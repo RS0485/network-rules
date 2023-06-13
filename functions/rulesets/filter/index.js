@@ -20,14 +20,16 @@ export async function onRequest(context) {
     const { searchParams } = new URL(request.url);
 
     let prefixesStr = searchParams.get('prefixes') || '';
+    let suffixesStr = searchParams.get('suffixes') || '';
     let keywordsStr = searchParams.get('keywords') || '';
 
     const prefixesOrig = prefixesStr.split(',').map(item => item.trim()).filter(item => item !== '');
     const prefixesMod = prefixesOrig.map(item => item.startsWith("+.") ? item : "+." + item);
     const prefixes = [...new Set(prefixesOrig.concat(prefixesMod))];
 
+    const suffixes = suffixesStr.split(',').map(item => item.trim()).filter(item => item !== '');
     const keywords = keywordsStr.split(',').map(item => item.trim()).filter(item => item !== '');
-    console.log(`prefixes: ${prefixes}, keywords:${keywords}`);
+    console.log(`prefixes: ${prefixes}, suffixes: ${suffixes}, keywords:${keywords}`);
 
     let upstreamURL = searchParams.get('url');
     if (!upstreamURL || upstreamURL === '') {
@@ -54,8 +56,9 @@ export async function onRequest(context) {
         const domain = sections.length > 1 ? sections[1] : sections[0];
 
         const hasPrefix = prefixes.some(prefix => domain.startsWith(prefix));
+        const hasSuffix = suffixes.some(suffix => domain.endsWith(suffix));
         const hasKeyword = keywords.some(keyword => domain.includes(keyword));
-        return !(hasPrefix || hasKeyword);
+        return !(hasPrefix || hasSuffix || hasKeyword);
     });
 
     return new Response(newLines.join('\n'), {
