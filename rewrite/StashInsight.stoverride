@@ -45,7 +45,7 @@ tiles:
     icon: 'arrow.up.arrow.down.circle.fill'
     backgroundColor: '#4CAF50'
     argument: 'Stash Traffic,tile,http://127.0.0.1:9090,,stash'
-    url: 'https://clash.insight:9090/html'
+    url: 'http://clash.insight:9090/html'
 
 script-providers:
   clash-insight:
