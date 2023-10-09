@@ -10,13 +10,11 @@ Clash(Stash)/Quantumult X rules and scripts
 - [IP信息解析脚本](https://github.com/RS0485/network-rules/tree/main/resource/geolocation-parser.js)
 - [IPv6 连接测试](https://github.com/RS0485/network-rules/tree/main/scripts/ipv6-check.js)
 - [Clash Insight](https://github.com/RS0485/network-rules/blob/main/scripts/clash-insight.md)
-- [New Bing 聊天修复](https://github.com/RS0485/network-rules/tree/main/rewrite/TheNewBing.qx.conf)
 
 ### Stash
 - [Stash Insight](https://github.com/RS0485/network-rules/blob/main/scripts/clash-insight.md)
 - [实时油价查询](https://github.com/RS0485/network-rules/tree/main/rewrite/GasPrice.stoverride)
 - [直连+代理IP地址信息](https://github.com/RS0485/network-rules/tree/main/rewrite/IPGeolocation.stoverride)
-- [New Bing 聊天修复](https://github.com/RS0485/network-rules/tree/main/rewrite/TheNewBing.stoverride)
 - [Fake IP Fixer](https://github.com/RS0485/network-rules/tree/main/rewrite/FakeIPFixer.stoverride)
 - [Block Bad UDP](https://github.com/RS0485/network-rules/tree/main/rewrite/BlockBadUDP.stoverride)
 
