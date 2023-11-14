@@ -33,7 +33,15 @@ export async function onRequest(context) {
     }
 
     if (!response.headers.get('content-type').includes('text/plain')) {
-        return response;
+        const contentBuffer = await response.arrayBuffer();
+        return new Response(contentBuffer, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {
+                'Content-Type': contentType,
+                'Cache-Control': 'max-age=86400'
+            }
+        });
     }
 
     let content = await response.text();
