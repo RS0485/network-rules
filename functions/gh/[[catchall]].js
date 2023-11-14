@@ -32,7 +32,9 @@ export async function onRequest(context) {
         return new Response(`Error response from URL: ${url}`, { status: response.status });
     }
 
-    if (!response.headers.get('content-type').includes('text/plain')) {
+    const contentType = response.headers.get('content-type');
+
+    if (contentType && !contentType.includes('text/plain')) {
         const contentBuffer = await response.arrayBuffer();
         return new Response(contentBuffer, {
             status: response.status,
